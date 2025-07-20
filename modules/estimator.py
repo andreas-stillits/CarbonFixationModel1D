@@ -5,25 +5,29 @@
 
 import numpy as np 
 import numpy.random as r 
+import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm # optional library for progress bars in jupyter notebooks
 
 
-def estimate_Ci_values(Ans, dAns, gss, dgss, Ca, sim_size=1000, plot_sample=True):
+def estimate_Ci_values(dataframe, sim_size=1000, plot_sample=True):
     '''
     Estimate Cis from quoted An [µmol/m2/s] and gs [mol/m2/s] values and probagate errors
-    Ans: An values
-    dAns: An errors
-    gss: gs values
-    dgss: gs errors
-    Ca: atmospheric CO2 concentration [µmol/mol]
+    dataframe: pandas DataFrame containing An, gs, Ca, and their errors
     sim_size: number of simulations to run
     plot_sample: if True, will plot a histogram of the Ci distribution for a random sample
     '''
-    sample_size = len(Ans)
+    # extract data
+    An  = dataframe['assimilation_rate'].to_numpy()
+    dAn = dataframe['d_assimilation_rate'].to_numpy()
+    gs  = dataframe['stomatal_conductance'].to_numpy()
+    dgs = dataframe['d_stomatal_conductance'].to_numpy()
+    Ca  = dataframe['atmospheric_CO2'].to_numpy()
+    #
+    sample_size = len(An)
     Cis = np.zeros(sample_size)
     dCis = np.zeros(sample_size)
-
+    #
     rand = r.randint(0, sample_size)
     for i in range(sample_size):
         Ci_dist = np.zeros(sim_size)
@@ -32,33 +36,38 @@ def estimate_Ci_values(Ans, dAns, gss, dgss, Ca, sim_size=1000, plot_sample=True
             while Ci_dist[j] <= 100:
                 An_sim = -1
                 while An_sim <= 0:
-                    An_sim = r.normal(Ans[i], dAns[i])
+                    An_sim = r.normal(An[i], dAn[i])
                 gs_sim = -1
                 while gs_sim <= 0:
-                    gs_sim = r.normal(gss[i], dgss[i])
-                Ci_dist[j] = Ca - An_sim/gs_sim
+                    gs_sim = r.normal(gs[i], dgs[i])
+                Ci_dist[j] = Ca[i] - An_sim/gs_sim
         if plot_sample and i == rand:
             plt.hist(Ci_dist, bins=25)
             plt.show()
         Cis[i] = np.mean(Ci_dist)
         dCis[i] = np.std(Ci_dist)
-    return Cis, dCis
+    # append to dataframe
+    dataframe.loc[:, 'substomatal_CO2']   = Cis
+    dataframe.loc[:, 'd_substomatal_CO2'] = dCis
+    return dataframe
 
 
 
-def estimate_gm_star_values(Ans, dAns, Cis, dCis, C_star, dCstar, sim_size=1000, plot_sample=True):
+def estimate_gm_star_values(dataframe, sim_size=1000, plot_sample=True):
     '''
     Estimate gm_star from An [µmol/m2/s], Cis [µmol/mol] and C_star [µmol/mol] values and probagate errors
-    Ans: An values
-    dAns: An errors
-    Cis: Cis values
-    dCis: Cis errors
-    C_star: C_star value
-    dCstar: C_star error
+    dataframe: pandas DataFrame containing An, Ci, C*, and their errors 
     sim_size: number of simulations to run
     plot_sample: if True, will plot a histogram of the gm_star distribution for a random sample
     '''
-    sample_size = len(Ans)
+    # extract data
+    An      = dataframe['assimilation_rate'].to_numpy()
+    dAn     = dataframe['d_assimilation_rate'].to_numpy()
+    Ci      = dataframe['substomatal_CO2'].to_numpy()
+    dCi     = dataframe['d_substomatal_CO2'].to_numpy()
+    C_star  = dataframe['compensation_point'].to_numpy()
+    dC_star = dataframe['d_compensation_point'].to_numpy()
+    sample_size = len(An)
     # containers for gm* values denoted in code by gm_
     gm_ = np.zeros(sample_size)
     dgm_ = np.zeros(sample_size)
@@ -71,13 +80,13 @@ def estimate_gm_star_values(Ans, dAns, Cis, dCis, C_star, dCstar, sim_size=1000,
             while gm_dist[j] < 0:
                 An_sim = -1
                 while An_sim < 0:
-                    An_sim = r.normal(Ans[i], dAns[i])
+                    An_sim = r.normal(An[i], dAn[i])
                 Cis_sim = -1
                 while Cis_sim < 0:
-                    Cis_sim = r.normal(Cis[i], dCis[i])
+                    Cis_sim = r.normal(Ci[i], dCi[i])
                 C_star_sim = -1
                 while C_star_sim < 0:
-                    C_star_sim = r.normal(C_star, dCstar)
+                    C_star_sim = r.normal(C_star[i], dC_star[i])
                 gm_dist[j] = An_sim/(Cis_sim - C_star_sim)
         if plot_sample and i == rand:
             plt.hist(gm_dist, bins=50)
@@ -87,9 +96,10 @@ def estimate_gm_star_values(Ans, dAns, Cis, dCis, C_star, dCstar, sim_size=1000,
             plt.show
         gm_[i] = np.mean(gm_dist)
         dgm_[i] = np.std(gm_dist)
-
-    return gm_, dgm_
-
+    # append to dataframe
+    dataframe.loc[:,'mesophyll_conductance*']   = gm_ 
+    dataframe.loc[:,'d_mesophyll_conductance*'] = dgm_
+    return dataframe
 
 
 # helper function
