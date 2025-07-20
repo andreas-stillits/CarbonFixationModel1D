@@ -1,0 +1,232 @@
+Species,Plant type,Leaf Habit,Biome,Leaf T,Irradiance PAR,gm,A_area,g_s,Ca,Ci,Cc,LMA,K_leaf,VLA
+Arbutus unedo,Woody,Evergreen,Semi-arid,,,0.161,9.7,0.08,350,228.8,168.5,,,
+"Astrotrichia 
+floccosa",Woody,Deciduous,Semi-arid,25,1000,0.111,9.19,0.112,376.4,292.8,209.4,66,,
+Banksia aemula,Woody,Evergreen,Semi-arid,25,1000,0.087,4.5,0.023,386.1,192.4,140.5,178,,
+"Banksia 
+attenuata",Woody,Evergreen,Semi-arid,22,1500,0.17,25,0.2,380,255,107.9,217,,
+Banksia elderia,Woody,Evergreen,Semi-arid,22,1500,0.085,11.5,0.088,380,250,114.7,478,,
+"Banksia 
+integrifolia",Woody,Evergreen,Semi-arid,22,1250,0.136,18.41,0.167,376.5,246.5,120.2,200.5,,
+Banksia margita,Woody,Evergreen,Semi-arid,25,1000,0.056,5.04,0.057,381.9,267.8,175.3,222,,
+"Banksia 
+oblongifolia",Woody,Evergreen,Semi-arid,25,1000,0.11,9.73,0.065,381.8,229.6,140.9,258,,
+Banksia paludosa,Woody,Evergreen,Semi-arid,22,1500,0.15,18,0.129,380,240,120,262,,
+Banksia repens,Woody,Evergreen,Semi-arid,22,1500,0.11,13,0.1,380,250,131.8,269,,
+Banksia robur,Woody,Evergreen,Semi-arid,25,1000,0.098,5.95,0.044,367.9,224.4,165.4,138,,
+Banksia serrata,Woody,Evergreen,Semi-arid,24,1167,0.099,10.82,0.095,387,247.9,142.3,185.3,,
+Banksia solandri,Woody,Evergreen,Semi-arid,22,1500,0.17,18,0.12,380,230,124.1,238,,
+Banksia spinulosa,Woody,Evergreen,Semi-arid,25,1000,0.039,4.39,0.033,376.3,232.9,119.7,220,,
+Beta maritima,Herb,Annual,Semi-arid,25,1500,0.173,21.09,0.36,380,250.2,132.3,37.8,,
+Beta vulgaris,Herb,Annual,Temperate,25,1500,0.366,16.9,0.16,375,248.3,197.8,56.5,,7
+Betula pubescens,Woody,Deciduous,Temperate,27.6,1000,0.035,4.4,0.038,400,304.8,135.9,49.5,,
+Brassica carita,Herb,Annual,Crop,24,450,0.55,10.5,,,320,274,,,
+"Bruguiera 
+parviflora",Woody,Evergreen,Tropical,,,0.225,12.75,0.4,350,318.1,260.9,,,
+Camellia japonica,Woody,Evergreen,Temperate,25,400,0.095,7.1,,370,,,175,,
+"Capsicum 
+annuum",Herb,Annual,Crop,26.3,1000,0.154,16.37,0.193,400,229,130.7,26.9,,11.47
+Carya cathayensis,Woody,Deciduous,Tropical,28,1500,0.18,11.2,0.125,380,213,151,,,
+Castanea sativa,Woody,Deciduous,Temperate,,,0.076,6.45,0.054,353.6,252.8,160.2,69.2,4.56,
+Catalpa speciosa,Woody,Deciduous,Temperate,26.7,1000,0.166,6.35,0.025,400,128.5,88.3,49.7,,6.54
+"Cinamomum 
+camphora",Woody,Evergreen,Tropical,25,400,0.06,3.9,0.076,350,298.9,233.9,105,,
+Cistus albidus,Woody,Deciduous,Semi-arid,24.6,1500,0.217,17.37,0.171,390,258.9,172.7,100.5,,
+Citrus limon,Woody,Evergreen,Crop,25,1200,0.183,12.9,0.106,370,231.6,161.1,99,,
+Citrus paradisi,Woody,Evergreen,Crop,,,0.208,20.4,0.219,350,248.5,150.4,108,,
+Citrus reticulata,Woody,Evergreen,Tropical,27.2,1000,0.007,1.44,0.015,400,288.5,87.4,83.7,,
+"Cneorum 
+tricoccon",Woody,Evergreen,Semi-arid,29.9,1500,0.196,17.35,0.123,400,236,144,182,,9.44
+"Corymbia 
+gummifera",Woody,Evergreen,Semi-arid,25,1000,0.04,3.33,0.034,386.6,288.5,205.4,224,,
+Cucumis sativus,Herb,Annual,Crop,,,0.352,17.4,0.166,347.7,259.2,202.2,27,,3.9
+"Cypripedium 
+flavum",Herb,Annual,Boreal/Alpine,20,1500,0.1,7.36,0.081,358,255.4,168.1,56.7,,
+"Dacrydium 
+cupressinum",Woody,Conifer,Temperate,,,0.032,5.2,0.059,370,281.9,119.4,138.9,,
+Digitalis minor,Herb,Annual,Semi-arid,25,1500,0.174,17.04,0.159,380,267.6,157.3,120.7,,
+"Diplotaxis 
+ibicensis",Herb,Annual,Semi-arid,25,1500,0.3,26.6,0.319,380,232,144.4,50.2,,
+"Eriostemon 
+australasius",Woody,Evergreen,Semi-arid,25,1000,0.07,4.12,0.026,381.6,223.3,165.1,145,,
+Eucalyptus arecea,Woody,Evergreen,Semi-arid,25,1000,0.25,13.17,0.253,400,266,210.3,,,
+"Eucalyptus 
+blakelyi",Woody,Evergreen,Tropical,25,1800,0.172,13.92,,360,,,,,
+"Eucalyptus 
+delegatensis",Woody,Evergreen,Boreal/Alpine,25,1000,0.31,15.13,0.473,400,295,244.3,,,
+Eucalyptus fibrosa,Woody,Evergreen,Semi-arid,25,1000,0.059,5.02,0.035,386.9,282.3,196.6,212,,
+"Eucalyptus 
+globulus",Woody,Evergreen,Semi-arid,25,1667,0.178,13.38,0.243,348.5,278.1,196.3,51,3.9,7.35
+"Eucalyptus 
+haemastoma",Woody,Evergreen,Semi-arid,25,1000,0.084,6.31,0.043,376.5,235,161.6,161,,4.15
+Eucalyptus nitens,Woody,Evergreen,Temperate,25,1000,0.207,10.33,0.293,400,295,250.3,,,
+"Eucalyptus 
+saligna",Woody,Deciduous,Semi-arid,25,1000,0.136,4.7,0.128,276,210,176,,,
+"Eucalyptus 
+sclerophylla",Woody,Evergreen,Semi-arid,25,1000,0.057,4.35,0.026,400.4,214.6,140.1,201,,
+Eucalyptus sieberi,Woody,Evergreen,Semi-arid,25,1000,0.465,11.1,0.627,246,209,185,,,
+"Eucalyptus 
+socialis",Woody,Evergreen,Semi-arid,25,1000,0.28,16.13,0.273,400,249,186.7,,,
+Eucalyptus umbra,Woody,Evergreen,Semi-arid,25,1000,0.05,5.41,0.038,368.1,220.3,120.2,198,,
+Fagus sylvatica,Woody,Deciduous,Temperate,25,1500,0.17,11.6,0.145,375,254.7,180.2,92.6,9.3,9.5
+Ficus elastica,Woody,Evergreen,Tropical,26.8,1000,0.028,1.91,0.031,400,264.4,113.7,119.7,,
+"Fraxinus 
+angustifolia",Woody,Deciduous,Temperate,,,0.155,18.5,0.131,,228.9,107.4,95,,
+Glycine max,Herb,Annual,Crop,25,825,0.336,22.83,0.319,396,251,180.2,52.8,11.2,4.5
+"Gossypium 
+hirsutum",Herb,Annual,Crop,,,0.31,13,0.084,360,185,143,69.1,12.2,
+Grevillea speciosa,Woody,Evergreen,Semi-arid,25,1000,0.049,4.67,0.069,378.4,289.6,193.4,132,,
+Hakea dactyloides,Woody,Evergreen,Semi-arid,25,1000,0.091,9.26,0.083,382,267.8,163.6,313,6,
+Hedera helix,Woody,Evergreen,Semi-arid,,,0.147,10.4,0.065,350,190,119.3,72.4,10.4,3.57
+"Helianthus 
+annuus",Herb,Annual,Crop,25.3,1000,0.306,17.7,0.121,400,229.8,165.9,31.4,6.45,9.8
+"Hordeum 
+bulbosum",Grass,Annual,Semi-arid,26,650,0.215,8.67,0.148,395,326.8,273.7,,,
+Hordeum vulgare,Grass,Annual,Crop,26,650,0.365,19.83,0.279,395,300,234.7,,,
+"Hypericum 
+balearicum",Woody,Evergreen,Semi-arid,25,1500,0.075,12.6,0.206,380,270.5,97.3,101.4,,
+"Juglans nigra x 
+regia",Woody,Deciduous,Temperate,25,1500,0.192,15.8,0.239,350,266.4,184.1,62.1,,
+Juglans regia,Woody,Deciduous,Temperate,25,900,0.219,14.4,,360,,,115.3,8.33,7.48
+"Lambertia 
+formosa",Woody,Evergreen,Semi-arid,25,1000,0.076,9.01,0.077,385.9,270.7,153.2,215.5,,
+Laurus nobilis,Woody,Evergreen,Semi-arid,25,1000,0.056,7,0.042,360,208,92.9,130.7,2,4.7
+Leymus chinensis,Grass,Annual,Temperate,25.5,900,0.175,16.25,0.216,380,302.1,201.9,,,
+"Ligustrum 
+lucidum",Woody,Evergreen,Tropical,25,400,0.09,6.75,0.047,350,206,131,131.7,,
+Limonium gibertii,Woody,Evergreen,Semi-arid,25,1500,0.208,21.05,0.165,375,218,100.7,81.5,,
+"Limonium 
+magallufianum",Woody,Evergreen,Semi-arid,25,1500,0.12,15.4,0.154,380,213.2,83.7,84.9,,
+"Lysimachia 
+minoricensis",Herb,Annual,Semi-arid,25,1500,0.08,10.64,0.176,380,265.5,91.8,37.4,,
+"Macadamia 
+integrifolia",Woody,Evergreen,Crop,25,1200,0.113,9.5,0.088,350,210,125.9,142,,
+"Macadamia 
+ternifolia",Woody,Evergreen,Semi-arid,25,1000,0.076,5.17,0.033,369.9,212.2,142.6,165,,
+"Macrozamia 
+communis",Woody,Evergreen,Semi-arid,25,1000,0.097,5.68,0.029,377,179.2,120.9,228,,
+"Macrozamia 
+spiralis",Woody,Evergreen,Semi-arid,25,1000,0.053,5.5,0.024,378.8,223.2,120.9,250,,
+Mangifera indica,Woody,Evergreen,Tropical,,,0.153,6.47,0.07,365,205,136.3,,,
+Mentha spicata,Herb,Annual,Temperate,,,0.11,11.3,0.19,350,290,188,,,
+"Metrosideros 
+polymorpha",Woody,Evergreen,Temperate,,600,0.395,10.9,0.24,340,269.2,241.6,243,,
+"Metrosideros 
+umbellata",Woody,Evergreen,Temperate,21,500,0.06,6.7,0.068,355.3,201.6,89.9,200,,
+Nerium oleander,Woody,Evergreen,Semi-arid,25,1000,0.215,5.7,0.045,350,,,,,
+Nicotia sylvestris,Herb,Annual,Temperate,27.6,1500,0.226,20.5,0.182,387.5,256,164.8,40.2,,
+"Nicotiana 
+tabacum",Herb,Annual,Crop,25,1075,0.355,20.47,0.218,385.1,252.4,192.5,37.8,,5.4
+"Notelaea 
+longifolia",Woody,Evergreen,Semi-arid,25,1000,0.037,3.09,0.026,371.3,250.6,167.3,176,,
+"Nothofagus 
+solandrii var. 
+cliffortiodes",Woody,Evergreen,Boreal/Alpine,20,1000,0.074,16.1,0.09,380,,,,,
+"Ocimum 
+basilicum",Herb,Annual,Tropical,25.9,1000,0.165,4.66,0.085,400,332.9,240.3,26.4,,
+"Olea europaea 
+var. sylvestris",Woody,Evergreen,Semi-arid,27.3,1167,0.098,9.34,0.047,380,199.8,107.1,173.2,,
+"Oryza 
+australiensis",Grass,Annual,Temperate,25,1500,0.45,21,0.45,380,290,243.3,,,
+Oryza meridiolis,Grass,Annual,Temperate,25,1500,0.5,23,0.394,380,290,244,,,
+Oryza sativa,Grass,Annual,Crop,28.2,1426,0.449,19.85,0.346,376.3,311.8,268.5,34.5,3.15,6.58
+"Persoonia 
+lanceolata",Woody,Evergreen,Semi-arid,25,1000,0.056,5.94,0.07,380.2,299.2,188.7,179,,
+Persoonia lauri,Woody,Evergreen,Semi-arid,25,1000,0.037,2.86,0.031,387.3,304.7,195.5,151,,
+Persoonia levis,Woody,Evergreen,Semi-arid,25,1000,0.059,6.43,0.083,378.9,300.4,191.3,178,,
+"Phaseolus 
+vulgaris",Herb,Annual,Crop,25.3,1382,0.264,18.99,0.222,373.6,244.9,165.8,22.9,15.59,
+Phlomis italica,Woody,Deciduous,Semi-arid,25,1500,0.25,16.9,0.223,380,237.7,164.7,116.4,,
+"Phragmites 
+australis",Grass,Annual,Semi-arid,,,0.26,14.1,0.19,350,275,220,31.9,7.33,5.03
+Picea sitchensis,Woody,Conifer,Boreal/Alpine,15,800,0.038,3.5,0.031,350,206.5,114.4,154.9,,0.3
+Pinus asperata,Woody,Conifer,Semi-arid,31,900,0.04,3.4,0.156,360,338.2,253.2,128,,
+Pinus asperata,Woody,Conifer,Temperate,31,900,0.11,7,0.237,360,330.5,266.8,104,,
+Pinus densiflora,Woody,Conifer,Temperate,25.8,1100,0.25,14.17,0.194,350,257,193,216,,
+Pinus pinaster,Woody,Conifer,Temperate,25,1500,0.16,8,0.11,,234,184,507,,
+Pinus radiata,Woody,Conifer,Temperate,20,1500,0.178,10.55,0.156,365,295.9,234.7,86.2,,
+Pistacia lentiscus,Woody,Evergreen,Semi-arid,25,1500,0.05,7.7,0.076,380,232.3,79.5,187.6,,9.61
+"Pittosporum 
+tobira",Woody,Evergreen,Temperate,27.5,1000,0.018,2.78,0.015,400,208.6,79.4,118.3,,
+"Pittosporum 
+undulatum",Woody,Evergreen,Semi-arid,25,1000,0.112,8.66,0.067,366,235.9,158.9,118,,
+"Platanus 
+orientalis",Woody,Deciduous,Temperate,25,350,0.031,5.4,0.148,360,321.7,144.8,84.2,6.34,7.78
+Poa pratensis,Grass,Annual,Temperate,23,800,0.28,19.55,0.15,400,269.2,199.3,,,
+"Polygonum 
+cuspidatum",Herb,Annual,Temperate,25,750,0.196,14.2,0.22,400,244.7,172.1,42.2,,
+"Populus 
+balsamifera",Woody,Deciduous,Temperate,25,1000,0.277,12.78,0.156,375,281.8,213.5,,,
+"Populus 
+maximowiczii",Woody,Deciduous,Temperate,25,760,0.104,12.69,0.46,,302.4,180.4,72.8,,
+Populus nigra,Woody,Deciduous,Temperate,25,500,0.108,13,0.25,380,295,147.5,90,,23.3
+Populus sp.,Woody,Deciduous,Temperate,22.5,500,0.501,13.52,0.166,350,,,,,
+Prosopis veluti,Woody,Evergreen,Desert,25,1500,0.21,22.5,0.216,400,295.7,188.5,,,
+"Prumnopytis 
+ferruginea",Woody,Conifer,Temperate,,,0.052,6.8,0.051,370,236.7,105.9,103.1,,
+Prunus dulcis,Woody,Deciduous,Crop,30,1500,0.4,19,0.15,380,253.3,205.8,,,
+Prunus persica,Woody,Deciduous,Crop,25,1200,0.372,30.1,0.319,350,245,164.1,55,,11.4
+"Pseudotsuga 
+menziesii",Woody,Conifer,Temperate,23.6,1100,0.132,10.92,0.096,385,252.7,186.6,138.9,,
+Quercus brandtii,Woody,Deciduous,Temperate,26.2,1000,0.026,3.87,0.058,400,315.1,99.2,119.4,,
+Quercus cariensis,Woody,Deciduous,Semi-arid,20,1500,0.17,15.5,0.128,400,245,148,,,
+Quercus glauca,Woody,Evergreen,Temperate,25,400,0.075,6.1,,350,,,90.2,,
+Quercus ilex,Woody,Evergreen,Semi-arid,27.1,1071,0.069,7.8,0.058,382.5,238.1,127.4,160.9,8,12.2
+Quercus petraea,Woody,Deciduous,Temperate,22.5,500,0.236,9.81,0.092,350,,,74.3,11,8
+"Quercus 
+phyllireaoides",Woody,Evergreen,Temperate,25,400,0.14,12.5,0.069,350,222,91.1,164.2,,
+Quercus robur,Woody,Deciduous,Temperate,22.5,500,0.16,15.16,0.127,365,233.9,112.8,91.7,9.9,
+Quercus rubra,Woody,Deciduous,Boreal/Alpine,,,0.142,10.8,0.16,,282.5,206.4,84.2,14.68,9.46
+Raphanus sativus,Herb,Annual,Crop,25,1800,0.312,26.67,,,,,,,
+"Rhamnus 
+alaternus",Woody,Evergreen,Semi-arid,29.4,1500,0.125,10.47,0.075,400,209.3,131,133.2,,6.93
+"Rhamnus ludovici-
+salvatoris",Woody,Evergreen,Semi-arid,,,0.073,9.3,0.084,,233,161.4,128,,
+"Rosmarinus 
+officilis",Woody,Evergreen,Semi-arid,,,0.068,9.9,0.13,350,274,128,,,
+Sequoia,Woody,Conifer,Semi-arid,25,2000,0.046,17.21,,400,,,149,,
+"Solanum 
+lycopersicum",Herb,Annual,Crop,31.3,1400,0.246,18.11,0.184,396.7,271.3,196.6,39.6,,
+Spicia oleracea,Herb,Annual,Crop,25.7,1000,0.244,20.22,0.316,365,288.8,201.2,24.7,,
+Stipa grandis,Grass,Annual,Temperate,25,900,0.078,12,0.091,380,247.6,93.7,,,
+"Syncarpia 
+glomulifera",Woody,Evergreen,Semi-arid,25,1000,0.117,10.08,0.097,375.9,271,184.7,144,,
+"Synoum 
+glandulosum",Woody,Evergreen,Semi-arid,25,1000,0.079,5,0.053,369.1,266,202.2,94,,
+Triticum aestivum,Grass,Annual,Crop,24.8,1700,0.482,40.24,0.547,390,303,225.3,28.9,17.5,3.04
+Triticum durum,Grass,Annual,Crop,27.5,,0.447,21.04,0.375,350,,195,,,
+Triticum spp.,Grass,Annual,Crop,,,0.638,20.8,0.176,350,231.8,199.2,,,
+Vicia faba,Herb,Annual,Crop,,,0.338,14.9,0.096,350,194.8,150.7,44.4,15.7,5.6
+"Vitis berlanideri x 
+V. ripestris 
+(Richter-110)",Woody,Deciduous,Crop,,,0.172,17.5,0.125,370,228,129,,,
+Vitis vinifera,Woody,Deciduous,Crop,,,0.144,12.78,0.144,390.6,275.5,172.5,147.6,6.8,
+"Washingtonia 
+filifera",Woody,Evergreen,Temperate,25.9,1000,0.031,6.88,0.099,400,359.1,167.6,84.4,,
+"Weinmannia 
+racemosa",Woody,Evergreen,Temperate,21,500,0.085,9.9,0.085,355.3,173.6,57.1,86.2,,
+"Xanthium 
+strumarium",Herb,Annual,Crop,25,1000,0.47,13.9,0.29,350,,,,,
+"Xylomelum 
+pyriforme",Woody,Evergreen,Semi-arid,25,1000,0.067,5.01,0.029,369.7,191.5,111.8,151,,
+Osmunda regalis,Fern,Annual,Temperate,26,1000,0.092,8.5,0.077,400,290,198,42,,2
+Blechnum gibbum,Fern,Evergreen,Tropical,26,1000,0.055,4.5,0.036,400,275,193,37,,
+"Nephrolepsis 
+exaltata",Fern,Evergreen,Tropical,26,1000,0.03,2.5,0.021,400,281,198,41,,
+Abies alba,Woody,Conifer,Temperate,24.5,1500,,0.075,7.3,0.116,400,195,77,186.2,
+Abies pinsapo,Woody,Conifer,Semi-arid,24.5,1500,,0.151,11.5,0.087,400,181,98,363.3,
+Acacia falcata,Woody,Evergreen,Semi-arid,25,1000,,0.052,4.45,0.029,369.7,212.9,127.4,132,
+Acacia longifolia,Woody,Evergreen,Semi-arid,25,1000,,0.061,4.45,0.028,386,225,151.8,118,
+Acacia maidenii,Woody,Evergreen,Temperate,25,1000,,0.443,14.63,0.333,400,295,233,,
+Acacia mangium,Woody,Evergreen,Tropical,25,1000,,0.403,16.17,0.427,400,295,243.3,,
+Acacia myrtifolia,Woody,Evergreen,Semi-arid,25,1000,,0.111,7.59,0.06,367.2,241.3,173.2,145,
+Acacia suaveolens,Woody,Evergreen,Semi-arid,25,1000,,0.066,4.93,0.037,378.8,251.4,174.6,171,
+Acer mono,Woody,Deciduous,Temperate,24.9,750,,0.094,10.07,0.207,345.4,269,183.9,62.7,
+Acer negundo,Woody,Deciduous,Temperate,26.9,1000,,0.017,2.29,0.031,400,286.3,95.4,30.9,
+Acer palmatum,Woody,Deciduous,Temperate,24.8,740,,0.052,8.41,0.155,345.4,260.7,144.2,57.6,
+Acer rufinerve,Woody,Deciduous,Temperate,24.8,740,,0.047,7.92,0.099,345.4,220.7,124.4,73.3,
+Alnus japonica,Woody,Deciduous,Temperate,25,760,,0.094,7.88,0.16,,268.6,184.4,80.5,
+Alnus subcordata,Woody,Deciduous,Temperate,26.6,1000,,0.023,4.06,0.035,400,278.6,114.6,58.6,
+"Angophora 
+hispida",Woody,Evergreen,Semi-arid,25,1000,,0.053,4.5,0.032,370.1,226,144,179,
+Arabidopsis thaliana,Herb, Annual ,Temperate ,25,1500,,0.183,13.77,0.153,390,312.4,233.6,19,
