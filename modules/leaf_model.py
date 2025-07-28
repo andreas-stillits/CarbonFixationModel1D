@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 
 class Leaf:
-    def __init__(self, tau, gamma, chi_, rho=(1, 1, 0.5), resolution=500):
+    def __init__(self, tau, gamma, chi_, rho=(1, 1, 0.5), resolution=100):
         self.tau        = tau                           # absorption balance
         self.gamma      = gamma                         # transport balance
         self.chi_       = chi_                          # CO2 compensation point relative to atmospheric CO2 conc.
