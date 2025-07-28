@@ -32,7 +32,7 @@ FILE STRUCTURE
         - Knauer2022_hypostomatous.csv
             - Data from Knauer et al. 2022 where we have estimated $(\tau,\gamma)$ assuming hypostomatous boundary conditions (See supplementary S7, S8)
         - Knauer2022_most_ias_limited.csv
-            - Data from Knauer et al. 2022 where we have filtered for $\tau,\gamma > 0.5$ aiming at generating figure 5 (S8) that explores amphistomatous boundary conditions.
+            - Data from Knauer et al. 2022 where we have filtered for $\tau,\gamma > 0.5$ aiming at generating figure 5 (S8) that explores amphistomatous boundary conditions and its consequences for the most extreme datapoints (in the sense of IAS limitation to net assimilation rate).
         - Momayyezi2022_dehydrated.csv
             - Data from Momayyezi et al. 2022 where we have estimated $(\tau,\gamma)$ for drought conditions
         - Momayyezi2022_watered.csv
