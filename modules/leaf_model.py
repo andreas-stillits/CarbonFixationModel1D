@@ -66,7 +66,7 @@ class Leaf:
                            [delta_sm*beta_sm*exp_sm      ,  -delta_sm*beta_sm/exp_sm      ,  -delta_pm*beta_pm*exp_pm,   delta_pm*beta_pm/exp_pm], # continuous flux at boundary 
                            [0                            ,   0                            ,   beta_pm*np.exp(beta_pm),  -beta_pm/np.exp(beta_pm)]])# vanishing  flux at epidermis        
         #
-        target_vector = np.array([-self.gamma/delta_sm*(1-self.zeta_compensation), 0, 0, 0])
+        target_vector = np.array([-self.gamma/delta_sm*(1-self.chi_), 0, 0, 0])
         coefficients = np.matmul(np.linalg.inv(matrix), target_vector)
         #
         A_sm, B_sm, A_pm, B_pm = coefficients
@@ -75,8 +75,8 @@ class Leaf:
         sm = domain[:self.boundary]
         pm = domain[self.boundary:]
         # fill in the solution
-        self.solution[:self.boundary] = self.zeta_compensation + A_sm*np.exp(beta_sm*sm) + B_sm*np.exp(-beta_sm*sm)
-        self.solution[self.boundary:] = self.zeta_compensation + A_pm*np.exp(beta_pm*pm) + B_pm*np.exp(-beta_pm*pm)
+        self.solution[:self.boundary] = self.chi_ + A_sm*np.exp(beta_sm*sm) + B_sm*np.exp(-beta_sm*sm)
+        self.solution[self.boundary:] = self.chi_ + A_pm*np.exp(beta_pm*pm) + B_pm*np.exp(-beta_pm*pm)
         # return quantities
         return domain, self.solution
         # END
@@ -90,7 +90,7 @@ class Leaf:
         plt.plot(domain_stomata, stomata_grad, '-', color='purple', linewidth=3)
         plt.plot(domain, self.deltas, 'b--', label=r'$\delta (\lambda)$', linewidth=2)
         plt.plot(domain, self.kappas, 'r--', label=r'$\kappa (\lambda)$', linewidth=2)
-        plt.plot(domain, self.solution, '-', color='purple', label=r'$\zeta(\lambda)$', linewidth=3)
+        plt.plot(domain, self.solution, '-', color='purple', label=r'$\chi(\lambda)$', linewidth=3)
         #
         max = np.max([np.max(self.deltas), np.max(self.kappas)])
         plt.fill_between([0, 1-self.rho[-1]], 0, max, color='green', alpha=0.3)
@@ -100,6 +100,6 @@ class Leaf:
         plt.grid(linestyle='-.')
         plt.legend(loc='upper right', fontsize=15)
         plt.xlabel(r'percentage depth $\lambda$', fontsize=20)
-        plt.ylabel(r'distributions $\delta, \kappa, \zeta$', fontsize=20)
+        plt.ylabel(r'distributions $\delta, \kappa, \chi$', fontsize=20)
         plt.title(r'Leaf Model Solution', fontsize=20, fontweight='bold')
         plt.show()
