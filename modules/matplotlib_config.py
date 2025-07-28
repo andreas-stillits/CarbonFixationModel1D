@@ -1,8 +1,13 @@
+# functionality for setting up often used matplotlib settings
+
 import matplotlib as mpl
 from matplotlib.pyplot import get_cmap
 import numpy as np
 
 def set_standard_layout():
+    ''' 
+    Function to set up font settings and return colors used to denote regions I, II, III in figures such as 2D, 2F
+    '''
     mpl.rcParams['mathtext.fontset'] = 'stix'  # or 'dejavusans', 'cm', 'custom'
     mpl.rcParams['font.family'] = 'STIXGeneral'  # Matches STIX math font
     # set tick font size
@@ -10,7 +15,6 @@ def set_standard_layout():
     mpl.rcParams['ytick.labelsize'] = 12
     # set default fontsize
     mpl.rcParams['font.size'] = 14
-
     # COLORS
     # I : stomata
     colorI = hex2rgb('71A8C4')
@@ -20,14 +24,17 @@ def set_standard_layout():
     colorIII = hex2rgb('F8A17B')
     return colorI, colorII, colorIII   
 
+# function to generate a list of N colors from a colormap
 def generate_colors(colormap_name, N):
     cmap = get_cmap(colormap_name)
     return [cmap(i / (N - 1)) for i in range(N)]
 
+# function to convert hex color to rgb tuple
 def hex2rgb(hex):
     rbg = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
     return tuple([c/255 for c in rbg])
 
+# function to create a custom colormap with specified min, max, and resolution (used as heatmap in figures such as 3C)
 def my_cmap(min, max, res):
     colors = ['#001261',
  '#02236C',

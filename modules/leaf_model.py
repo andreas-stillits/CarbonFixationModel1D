@@ -3,14 +3,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-
 class Leaf:
     def __init__(self, tau, gamma, chi_, rho=(1, 1, 0.5), resolution=100):
         self.tau        = tau                           # absorption balance
         self.gamma      = gamma                         # transport balance
         self.chi_       = chi_                          # CO2 compensation point relative to atmospheric CO2 conc.
         self.rho        = rho                           # triplet encoding spongy/palisade mesophyll proportions (D_PM/D_SM, K_SM/K_PM, L_PM/L)
-        self.resolution = resolution                    # number of points to cast solution over
+        self.resolution = resolution                    # number of points to cast the solution over
         self.boundary   = int(resolution*(1-rho[2]))    # index of spongy/palisade mesophyll interface
         #
         self.deltas     = np.zeros(self.resolution)     # array for rescaled effective IAS diffusivity D/<D>
@@ -46,6 +45,9 @@ class Leaf:
 
 
     def calculate_steady_state_solution(self):
+        ''' 
+        Calculate the steady-state solution for CO2 concentration in the leaf
+        '''
         self.calculate_delta_and_kappa_distributions()
         self.solution = np.zeros(self.resolution)
         rho_delta, rho_kappa, rho_lambda = self.rho
@@ -83,6 +85,9 @@ class Leaf:
 
 
     def display_solution(self):
+        ''' 
+        Display the solution for CO2 concentration in the leaf
+        '''
         fig = plt.figure(figsize=(10,6))
         domain = np.linspace(0, 1, self.resolution)
         domain_stomata = np.linspace(-0.1, 0, 10)
@@ -96,7 +101,6 @@ class Leaf:
         plt.fill_between([0, 1-self.rho[-1]], 0, max, color='green', alpha=0.3)
         plt.fill_between([1-self.rho[-1], 1], 0, max, color='green', alpha=0.6)
         plt.fill_between([-0.1, 0], 0, max, color='grey', alpha=0.3)
-        #
         plt.grid(linestyle='-.')
         plt.legend(loc='upper right', fontsize=15)
         plt.xlabel(r'percentage depth $\lambda$', fontsize=20)
