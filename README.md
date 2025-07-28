@@ -2,8 +2,11 @@
 Functionality for data analysis and generation of plots published in the article:
 
 Title: Mapping Carbon Fixation to Two Effective Parameters: a framwork towards data-informed model simplifications 
+
 Journal: ...
+
 DOI: ...
+
 Authors: A. Stillits, T.E. Knudsen, A. Trusina
 
 Abstract: ... 
@@ -66,4 +69,5 @@ FILE STRUCTURE
 
 
 CONTACT
+
 email: andreas.stillits@nbi.ku.dk
