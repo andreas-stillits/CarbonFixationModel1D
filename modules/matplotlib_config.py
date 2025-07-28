@@ -1,5 +1,6 @@
 import matplotlib as mpl
 from matplotlib.pyplot import get_cmap
+import numpy as np
 
 def set_standard_layout():
     mpl.rcParams['mathtext.fontset'] = 'stix'  # or 'dejavusans', 'cm', 'custom'
@@ -27,3 +28,28 @@ def hex2rgb(hex):
     rbg = tuple(int(hex[i:i+2], 16) for i in (0, 2, 4))
     return tuple([c/255 for c in rbg])
 
+def my_cmap(min, max, res):
+    colors = ['#001261',
+ '#02236C',
+ '#023376',
+ '#034481',
+ '#06568C',
+ '#156798',
+ '#307DA6',
+ '#4E92B4',
+ '#71A8C4',
+ '#94BED2',
+ '#B3D1DF',
+ '#D5E3E9'] #scicolor.get_cmap('oslo25').colors
+    cmap = mpl.colors.LinearSegmentedColormap.from_list('Custom cmap', colors, N=21).reversed()
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    # force the first color entry to be 
+    cmaplist[0] = 'white'
+    # create the new map
+    cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        'Custom cmap', cmaplist, cmap.N)
+
+    # define the bins and normalize
+    bounds = np.linspace(min, max, res)
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    return cmap, norm
