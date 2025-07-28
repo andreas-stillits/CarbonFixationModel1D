@@ -5,7 +5,7 @@ Title: Mapping Carbon Fixation to Two Effective Parameters: a framwork towards d
 
 Journal: ...
 
-DOI: ...
+DOI: [![DOI](https://zenodo.org/badge/1023012859.svg)](https://doi.org/10.5281/zenodo.16541959) 
 
 Authors: A. Stillits, T.E. Knudsen, A. Trusina
 
