@@ -10,7 +10,7 @@ from matplotlib import pyplot as plt
 from tqdm import tqdm # optional library for progress bars in jupyter notebooks
 
 
-def estimate_Ci_values(dataframe, sim_size=1000, plot_sample=True):
+def estimate_Ci_values(dataframe, sim_size=10_000, plot_sample=True):
     '''
     Estimate Cis from quoted An [µmol/m2/s] and gs [mol/m2/s] values and probagate errors
     dataframe: pandas DataFrame containing An, gs, Ca, and their errors
@@ -43,6 +43,9 @@ def estimate_Ci_values(dataframe, sim_size=1000, plot_sample=True):
                 Ci_dist[j] = Ca[i] - An_sim/gs_sim
         if plot_sample and i == rand:
             plt.hist(Ci_dist, bins=25)
+            plt.title('Distribution of substomatal CO2')
+            plt.xlabel('substomatal CO2 [µmol/mol]')
+            plt.ylabel('Frequency')
             plt.show()
         Cis[i] = np.mean(Ci_dist)
         dCis[i] = np.std(Ci_dist)
@@ -53,7 +56,7 @@ def estimate_Ci_values(dataframe, sim_size=1000, plot_sample=True):
 
 
 
-def estimate_gm_star_values(dataframe, sim_size=1000, plot_sample=True):
+def estimate_gm_star_values(dataframe, sim_size=10_000, plot_sample=True):
     '''
     Estimate gm_star from An [µmol/m2/s], Cis [µmol/mol] and C_star [µmol/mol] values and probagate errors
     dataframe: pandas DataFrame containing An, Ci, C*, and their errors 
@@ -89,9 +92,9 @@ def estimate_gm_star_values(dataframe, sim_size=1000, plot_sample=True):
                     C_star_sim = r.normal(C_star[i], dC_star[i])
                 gm_dist[j] = An_sim/(Cis_sim - C_star_sim)
         if plot_sample and i == rand:
-            plt.hist(gm_dist, bins=50)
+            plt.hist(gm_dist, bins=25)
             plt.title('Distribution of gm_star')
-            plt.xlabel('gm_star')
+            plt.xlabel('gm_star [mol/m2/s]')
             plt.ylabel('Frequency')
             plt.show
         gm_[i] = np.mean(gm_dist)
@@ -148,7 +151,7 @@ def newton(gc0, gias, gm_, step_size = 0.4, max_iterations = 1000, tolerance = 1
     print('maxed out all iterations without convergence')
 
 
-def estimate_principle_parameters(dataframe, sim_samples = 500, plot_sample = True):
+def estimate_principle_parameters(dataframe, sim_samples = 10_000, plot_sample = True):
     '''
     data_frame: pandas dataframe with columns 'mesophyll_conductance*' (gm*), 'stomatal_conductance' (gs), 'ias_conductance' (gias) as well as their errors
     sim_samples: number of samples to draw from the error distributions
