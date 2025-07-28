@@ -3,6 +3,8 @@
 #   gias = 2*D_eff/L, where D_eff is effective IAS diffusivity and L is mesophyll thickness. The factor two is custom in the literature (e.g. Tomás et al. 2013)
 #   gm*  = An / (Ci - C*), where Ci is substomatal CO2 conc. and C* is the CO2 compensationpoint where carboxylation cancels net respiration.
 
+# NOTE: since estimator.py propagates errors using simulated sampling, small differences may occur in the results when running the same code multiple times.
+
 import numpy as np 
 import numpy.random as r 
 from matplotlib import pyplot as plt
@@ -34,7 +36,7 @@ def estimate_Ci_values(dataframe, sim_size=10_000, plot_sample=True):
         # loop over simulations
         for j in range(sim_size):
             Ci_dist[j] = -1 # initialize to -1 to ensure we sample until we get a valid value
-            while Ci_dist[j] <= 50: # a little above typical CO2 compensation point value
+            while Ci_dist[j] <= 100: # below 100 µmol/mol is considered unphysical for the study in question (Momayyezi et al. 2022, Figure 3, Ci values at ambient conditions indicated by dashed vertical grey lines)
                 An_sim = -1
                 while An_sim <= 0: # ensure we sample a positive assimilation rate
                     An_sim = r.normal(An[i], dAn[i]) # assume normal distribution
@@ -51,7 +53,7 @@ def estimate_Ci_values(dataframe, sim_size=10_000, plot_sample=True):
             plt.ylabel('Frequency')
             plt.show()
         # assign mean as center value and std as error
-        Cis[i] = np.mean(Ci_dist)
+        Cis[i] = np.median(Ci_dist)
         dCis[i] = np.std(Ci_dist, ddof=1)
     # append to dataframe
     dataframe.loc[:, 'substomatal_CO2']   = Cis
@@ -106,7 +108,7 @@ def estimate_gm_star_values(dataframe, sim_size=10_000, plot_sample=True):
             plt.ylabel('Frequency')
             plt.show
         # assign mean as center value and std as error
-        gm_[i] = np.mean(gm_dist)
+        gm_[i] = np.median(gm_dist)
         dgm_[i] = np.std(gm_dist, ddof=1)
     # append to dataframe
     dataframe.loc[:,'mesophyll_conductance*']   = gm_ 
@@ -199,7 +201,7 @@ def estimate_principle_parameters(dataframe, sim_samples = 10_000, plot_sample =
                 gias_sim = r.normal(gias[i],dgias[i]) # assume normal distribution
             # calculate gamma
             gamma_dist[j] = 2*gs_sim/gias_sim
-        gammas[i] = np.mean(gamma_dist)
+        gammas[i] = np.median(gamma_dist)
         # calculate the 16th and 84th percentiles and assign as assymmetric errors
         dgammas[i,0] = np.abs(np.percentile(gamma_dist,16) - gammas[i])
         dgammas[i,1] = np.abs(np.percentile(gamma_dist,84) - gammas[i])
@@ -216,7 +218,7 @@ def estimate_principle_parameters(dataframe, sim_samples = 10_000, plot_sample =
             gc0 = gm_[i] # initial guess for gc which will be true in the low tau limit
             gc_sim = newton(gc0, gias_sim, gm_sim) # iteratively determine gc
             tau_dist[j] = np.sqrt(2*gc_sim/gias_sim)
-        taus[i] = np.mean(tau_dist)
+        taus[i] = np.median(tau_dist)
         # calculate the 16th and 84th percentiles and assign as assymmetric errors
         dtaus[i,0] = np.abs(np.percentile(tau_dist,16) - taus[i])
         dtaus[i,1] = np.abs(np.percentile(tau_dist,84) - taus[i])
