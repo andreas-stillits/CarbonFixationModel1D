@@ -9,7 +9,9 @@ DOI: ...
 
 Authors: A. Stillits, T.E. Knudsen, A. Trusina
 
-Abstract: ... 
+Abstract: 
+
+Identifying the steps limiting net $CO_2$ assimilation rate in plant leaves, is essential for improving crop yield and resilience. However, disentangling the combined effects of multiple traits remains a major challenge. Biophysical models can resolve how multiple traits combine to control the rate-limiting steps, but there is no systematic way to identify the appropriate level of spatial and mechanistic resolution - ranging from simple resistance models to detailed anatomical simulations. Here, we propose that the necessary level of model resolution is species-specific. We apply a minimal reaction-diffusion model and reduce $CO_2$ fixation in leaves to two key parameters. These parameters comprise a compact phase space in which three rate-limiting regimes emerge naturally: stomatal uptake, intercellular diffusion, and subcellular processes. Mapping diverse plant species into this phase space reveals dominant co-limitations by stomatal and subcellular processes. The same parameter space provides quantitative criteria for model selection. Our results suggest that a simple model parameterized with bulk leaf properties will suffice to relate assimilation rate and leaf physiology for the vast majority of plants. However, a precise estimation of bulk properties from 3D anatomical data and models will be crucial. This framework offers a scalable path for interpreting complex trait data and guiding model selection.
 
 FILE STRUCTURE
 
