@@ -14,7 +14,11 @@ from dolfinx.fem.petsc import LinearProblem
 from dolfinx.io import gmshio
 import matplotlib.pyplot as plt
 
-def solver(tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda x: 1.0, order=1, mesh_file="./files/1D_mesh.msh", filename="./files/run.bp"):
+def get_meshcontext(mesh_file, order=1):
+    return gmshio.read_from_msh(mesh_file, MPI.COMM_WORLD, 0, gdim=1)
+
+
+def solver(meshcontext, tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda x: 1.0, order=1, mesh_file="./files/1D_mesh.msh", filename="./files/run.bp", save=False):
     """ 
     Solve the steady-state model for given tau, gamma, delta(z), kappa(z)
     
@@ -25,8 +29,7 @@ def solver(tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda x: 1.0, order
     gamma : float
         The value of gamma in the model
     """
-    master = 0
-    mesh, cell_tags, facet_tags = gmshio.read_from_msh(mesh_file, MPI.COMM_WORLD, master, gdim=1)
+    mesh, cell_tags, facet_tags = meshcontext
     MESOPHYL_TAG = 1
     STOMATAL_INTERFACE_TAG = 2
 
@@ -50,22 +53,18 @@ def solver(tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda x: 1.0, order
     
     problem = LinearProblem(a, L, bcs=[], petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
     uh = problem.solve() 
+    
+    if save:
+        # save solution
+        a4x.write_mesh(filename, mesh)
+        a4x.write_meshtags(filename, mesh, cell_tags, meshtag_name="cell_tags")
+        a4x.write_meshtags(filename, mesh, facet_tags, meshtag_name="facet_tags")
+        a4x.write_function(filename, uh, name="CO2_profile")
+    return mesh, uh
 
-    # save solution
-    a4x.write_mesh(filename, mesh)
-    a4x.write_meshtags(filename, mesh, cell_tags, meshtag_name="cell_tags")
-    a4x.write_meshtags(filename, mesh, facet_tags, meshtag_name="facet_tags")
-    a4x.write_function(filename, uh, name="CO2_profile")
-
-def extract_solution(filename, order=1):
-    """ Extract the solution from the steady solver """
-    mesh = a4x.read_mesh(filename, MPI.COMM_WORLD)
-    V = fem.functionspace(mesh, ("Lagrange", order))
-    uh = fem.Function(V)
-    a4x.read_function(filename, uh, name="CO2_profile")
-
-    # plot the solution in matplotlib over z=0 to z=1
+def extract_solution_from_objects(mesh, uh, order=1):
     mesh.topology.create_connectivity(0, 1)
+    V = fem.functionspace(mesh, ("Lagrange", order))
     imap = mesh.topology.index_map(0)
     nloc_vertices = imap.size_local 
     local_vertices = np.arange(nloc_vertices)
@@ -78,9 +77,23 @@ def extract_solution(filename, order=1):
     return xv[seq], uv[seq]
 
 
-def plotter(filename, resolution = 100):
+def load_file(filename, order=1):
+    """ Load the mesh and solution from file """
+    mesh = a4x.read_mesh(filename, MPI.COMM_WORLD)
+    V = fem.functionspace(mesh, ("Lagrange", order))
+    uh = fem.Function(V)
+    a4x.read_function(filename, uh, name="CO2_profile")
+    return mesh, uh
+
+def extract_solution_from_file(filename, order=1):
+    """ Extract the solution from the steady solver """
+    mesh, uh = load_file(filename, order=order)
+    return extract_solution_from_objects(mesh, uh, order=order)
+
+
+def plotter(filename):
     """ Plot the solution from the steady solver """
-    z, c = extract_solution(filename, resolution=resolution)
+    z, c = extract_solution_from_file(filename)
     plt.plot(z, c)
     plt.xlabel("z")
     plt.ylabel("CO2 concentration")
@@ -90,6 +103,10 @@ def plotter(filename, resolution = 100):
     plt.grid()
     plt.show()
     return z, c
+
+def get_homogeneous_chii(tau, gamma, chi_):
+    """ calculate chi(0) or C_i/C_a """
+    return chi_ + (1-chi_)/(1 + (tau/gamma)*np.tanh(tau))
  
 def step_down(x, min, max, offset, epsilon=0.01):
     """ Step down function from max to min at offset """
@@ -101,9 +118,9 @@ def step_up(x, min, max, offset, epsilon=0.01):
 
 def exp_down(x, beta):
     """ Exponential decay function """
-    return ufl.exp(-beta * x[0]) / (1 - np.exp(-beta))
+    return beta*ufl.exp(-beta * x[0]) / (1 - np.exp(-beta))
 
 def exp_up(x, beta):
     """ Exponential growth function """
-    return ufl.exp(beta * (x[0])) / (np.exp(beta) - 1)
+    return beta*ufl.exp(beta * (x[0])) / (np.exp(beta) - 1)
 
