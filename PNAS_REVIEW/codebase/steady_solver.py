@@ -18,7 +18,7 @@ def get_meshcontext(mesh_file, order=1):
     return gmshio.read_from_msh(mesh_file, MPI.COMM_WORLD, 0, gdim=1)
 
 
-def solver(meshcontext, tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda x: 1.0, order=1, mesh_file="./files/1D_mesh.msh", filename="./files/run.bp", save=False):
+def solver(meshcontext, tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda x: 1.0, order=1, filename="./files/run.bp", save=False):
     """ 
     Solve the steady-state model for given tau, gamma, delta(z), kappa(z)
     
@@ -45,7 +45,7 @@ def solver(meshcontext, tau, gamma, chi_star, delta=lambda x: 1.0, kappa=lambda 
     gamma_ = fem.Constant(mesh, PETSc.ScalarType(gamma))
     chi_ = fem.Constant(mesh, PETSc.ScalarType(chi_star))
 
-    a = -1*delta(x) * ufl.inner(ufl.grad(u), ufl.grad(v)) * dx(MESOPHYL_TAG) \
+    a = - delta(x) * ufl.inner(ufl.grad(u), ufl.grad(v)) * dx(MESOPHYL_TAG) \
         - tau_**2 * kappa(x) * u * v * dx(MESOPHYL_TAG) \
         - gamma_ * u * v * ds(STOMATAL_INTERFACE_TAG)
     L = - tau_**2 * kappa(x) * chi_ * v * dx(MESOPHYL_TAG) \

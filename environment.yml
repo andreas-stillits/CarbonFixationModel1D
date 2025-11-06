@@ -9,6 +9,8 @@ dependencies:
   - matplotlib
   - pandas
   - tqdm
+  - pyvista=0.46.3
+  - trame=3.12.0
   - fenics-dolfinx=0.9.0
   - mpich=4.3.2
   - adios4dolfinx=0.9.5
