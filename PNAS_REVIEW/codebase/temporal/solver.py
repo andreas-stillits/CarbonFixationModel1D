@@ -192,8 +192,8 @@ class TemporalSolver:
         # --- Extract time series of rescaled assimilation rate ---        
         times = [] 
         alphas = []
-        dofs_edge = fem.locate_dofs_geometrical(self.functionspace, lambda x: np.isclose(x[0], 0.0))
-        index_edge = int(dofs_edge[0])
+        # dofs_edge = fem.locate_dofs_geometrical(self.functionspace, lambda x: np.isclose(x[0], 0.0))
+        # index_edge = int(dofs_edge[0])
 
         # START INTEGRATION LOOP
 
@@ -234,9 +234,10 @@ class TemporalSolver:
             
             # --- extract rescaled assimilation rate at this time step ---
             times.append(t)
-            chi_edge = chi_new.x.array[index_edge]
-            stomata_edge = stomata_t.x.array[index_edge] 
-            alpha = self.gamma * stomata_edge * (1 - chi_edge)
+            # chi_edge = chi_new.x.array[index_edge]
+            # stomata_edge = stomata_t.x.array[index_edge] 
+            # alpha = self.gamma * stomata_edge * (1 - chi_edge)
+            alpha = fem.assemble_scalar(fem.form(kappa_t * (chi_new - chi_)*dx))
             alphas.append(alpha)
             # END INTEGRATION LOOP
         
