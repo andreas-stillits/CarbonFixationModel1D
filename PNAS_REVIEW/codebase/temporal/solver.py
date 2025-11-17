@@ -235,7 +235,7 @@ class TemporalSolver:
             # chi_edge = chi_new.x.array[index_edge]
             # stomata_edge = stomata_t.x.array[index_edge] 
             # alpha = self.gamma * stomata_edge * (1 - chi_edge)
-            alpha = fem.assemble_scalar(fem.form(kappa_t * (chi_new - chi_)*dx))
+            alpha = fem.assemble_scalar(fem.form(tau2 * kappa_t * (chi_new - chi_)*dx))
             alphas.append(alpha)
             # END INTEGRATION LOOP
         
