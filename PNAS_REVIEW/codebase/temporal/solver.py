@@ -25,12 +25,11 @@ def get_homogeneous_solution(x: np.ndarray, params: list[float]) -> np.ndarray:
 class TemporalSolver:
     def __init__(self, 
                  params: list[float], # [tau, gamma, chi_]
-                 filename: str = "temporal_solution.txt",
                  timing: tuple[float, float, float] = (0.0, 1.0, 0.01),
                  domain: mesh.Mesh | None = None, 
                  domain_resolution: int = 100, 
                  functionspace: fem.FunctionSpace | None = None,
-                 animate: bool = True,
+                 animate: bool = False,
                  animation_name: str = "chi_time.gif",
                  order: int = 1,
                  update_delta: Callable[[np.ndarray, float], np.ndarray] | None = None,
@@ -41,7 +40,6 @@ class TemporalSolver:
         self.tau = params[0]
         self.gamma = params[1]
         self.chi_ = params[2]
-        self.filename = filename
         self.t_start = timing[0]
         self.t_end = timing[1]
         self.dt = timing[2]
@@ -60,7 +58,7 @@ class TemporalSolver:
 
     def setup_domain(self) -> tuple[ufl.Measure, ufl.Measure]:
         if self.domain is None:
-            self.domain = mesh.create_interval(MPI.COMM_WORLD, self.domain_resolution, [0.0, 1.0])
+            self.domain = mesh.create_interval(MPI.COMM_SELF, self.domain_resolution, [0.0, 1.0])
         if self.functionspace is None:
             self.functionspace = fem.functionspace(self.domain, ("CG", self.order))
         # --- Create facet tags --- 
@@ -131,7 +129,7 @@ class TemporalSolver:
         return xcoords, grid, plotter
 
     
-    def solve(self):
+    def solve(self) -> tuple[np.ndarray, np.ndarray]:
         # --- get measures and set up domain mesh and functionspace if not supplied ---
         dx, ds = self.setup_domain()
         
@@ -179,7 +177,7 @@ class TemporalSolver:
         # precreate PETSc objects with correct sparsity pattern 
         A = create_matrix(a)
         b = create_vector(L)    
-        ksp = PETSc.KSP().create(MPI.COMM_WORLD)
+        ksp = PETSc.KSP().create(MPI.COMM_SELF)
         ksp.setType("cg")          # SPD for this model (with Dirichlet or pure Neumann + mass term)
         ksp.getPC().setType("hypre")
         ksp.setTolerances(rtol=1e-10, atol=1e-12, max_it=500)
@@ -246,7 +244,6 @@ class TemporalSolver:
         if self.animate:
             plotter.close()
 
-        data = np.vstack([times, alphas]).T
-        np.savetxt(self.filename, data, delimiter=";")
+        return np.array(times), np.array(alphas)
 
         
