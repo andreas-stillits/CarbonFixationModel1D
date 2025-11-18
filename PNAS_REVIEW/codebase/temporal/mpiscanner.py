@@ -7,7 +7,7 @@ Module to scan over temporal variation in atmospheric concentration Ca using MPI
 from mpi4py import MPI
 import numpy as np
 import time
-from time_solver import TemporalSolver, get_homogeneous_solution
+from PNAS_REVIEW.codebase.temporal.temporal_solver import TemporalSolver, get_homogeneous_solution
 import functools
 from constants import TemporalConstants, general_oscillator, add_argparse_flags, general_delta, general_kappa
 from argparse import ArgumentParser
@@ -36,7 +36,7 @@ def get_local_result_Ca(params: list[float], amplitude: float, period: float, tc
 def get_local_result_gs(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
     update_osc = functools.partial(general_oscillator, 
                                    amplitude=amplitude, 
-                                   period=period)
+                                   period=period)    
     timing = (0.0, tc.periods_to_run * period, tc.fraction_of_period * period)
     solver = TemporalSolver(params,
                             timing=timing,
@@ -50,13 +50,23 @@ def get_local_result_gs(params: list[float], amplitude: float, period: float, tc
     return times[cutoff_index:], alphas[cutoff_index:]
 
 
-def get_local_result_K_full(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
-    pass 
-
-def get_local_result_K_time(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
-    pass
-
-
+def get_local_result_K(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
+    update_osc = functools.partial(general_oscillator, 
+                                   amplitude=amplitude, 
+                                   period=period)
+    timing = (0.0, tc.periods_to_run * period, tc.fraction_of_period * period)
+    def osc_kappa(x: np.ndarray, t: float) -> np.ndarray:
+        return general_kappa(x, t) * update_osc(x, t)
+    
+    solver = TemporalSolver(params,
+                            timing=timing,
+                            animate=False,
+                            update_delta=general_delta,
+                            update_kappa=osc_kappa)
+    times, alphas = solver.solve()
+    del solver
+    cutoff_index = int(len(alphas) * tc.periods_to_cut / tc.periods_to_run)
+    return times[cutoff_index:], alphas[cutoff_index:]
 
 
 def main(argv=None) -> int:
@@ -94,7 +104,7 @@ def main(argv=None) -> int:
         elif args.quantity == "gs":
             times, alphas = get_local_result_gs(params, amplitude, period, tc)
         elif args.quantity == "K":
-            times, alphas = get_local_result_K_full(params, amplitude, period, tc)
+            times, alphas = get_local_result_K(params, amplitude, period, tc)
         #
         if args.save_series:
             series_path = f"{parent_path}/timeseries/"
@@ -120,7 +130,7 @@ def main(argv=None) -> int:
         np.savetxt(f"showcases/case{args.case}/{args.quantity}/alpha_hom.txt", np.array([alpha_hom]), delimiter=tc.delimiter, header=f"params {params[0]}, {params[1]}, {params[2]}")
         #
         if args.quantity == "K":
-            mesh, uh = ss_solver.solver(params, delta=lambda x: 1.0, kappa=lambda x: 1.0, save=False)
+            mesh, uh = ss_solver.solver(params, delta=functools.partial(general_delta, t=0), kappa=functools.partial(general_kappa, t=0), save=False)
             domain, solution = utils.extract_solution_from_objects(mesh, uh)
             alpha_het = params[1] * (1 - solution[0])
             np.savetxt(f"showcases/case{args.case}/{args.quantity}/alpha_het.txt", np.array([alpha_het]), delimiter=tc.delimiter, header=f"params {params[0]}, {params[1]}, {params[2]}")

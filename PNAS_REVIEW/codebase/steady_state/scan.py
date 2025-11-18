@@ -6,7 +6,7 @@ Module for during parameter scan to reproduce figure 3C
 
 import numpy as np
 from tqdm import tqdm 
-from ss_solver import solver  
+from steady_solver import solver  
 from dolfinx import mesh
 from mpi4py import MPI
 from utils import get_homogeneous_chii, exp_down, exp_up, extract_solution_from_objects

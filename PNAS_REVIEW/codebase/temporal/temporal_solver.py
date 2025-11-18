@@ -48,10 +48,10 @@ class TemporalSolver:
         self.functionspace = functionspace
         self.animate = animate
         self.animation_name = animation_name
-        self.update_delta = (lambda x, t: 1.0) if update_delta is None else update_delta
-        self.update_kappa = (lambda x, t: 1.0) if update_kappa is None else update_kappa
-        self.update_stomata = (lambda x, t: 1.0) if update_stomata is None else update_stomata
-        self.update_atmospheric = (lambda x, t: 1.0) if update_atmospheric is None else update_atmospheric
+        self.update_delta = (lambda x, t: np.ones_like(x)) if update_delta is None else update_delta
+        self.update_kappa = (lambda x, t: np.ones_like(x)) if update_kappa is None else update_kappa
+        self.update_stomata = (lambda x, t: np.ones_like(x)) if update_stomata is None else update_stomata
+        self.update_atmospheric = (lambda x, t: np.ones_like(x)) if update_atmospheric is None else update_atmospheric
         self.initial_condition = functools.partial(get_homogeneous_solution, params=params) if initial_condition is None else initial_condition
         self.order = order
 

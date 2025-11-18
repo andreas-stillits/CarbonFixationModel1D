@@ -8,6 +8,9 @@ from dataclasses import dataclass
 from argparse import ArgumentParser
 import numpy as np
 
+GLOBAL_RHO = (0.5, 0.6, 0.6)
+
+
 @dataclass(frozen=True)
 class TemporalConstants:
 
@@ -50,7 +53,18 @@ def general_oscillator(x: np.ndarray, t: float, amplitude: float, period: float)
     return 1 + amplitude * np.sin(2 * np.pi / period * t)
 
 def general_delta(x: np.ndarray, t: float) -> np.ndarray:
-    return np.ones_like(x)
+    rho_delta, rho_kappa, rho_lambda = GLOBAL_RHO
+    delta_max = 1/((1-rho_lambda) + rho_lambda*rho_delta)
+    delta_min = rho_delta*delta_max
+    offset    = 1 - rho_lambda
+    epsilon   = 0.01
+    return delta_min + (delta_max - delta_min) * 0.5 * (1 - np.tanh((x - offset) / epsilon))
 
 def general_kappa(x: np.ndarray, t: float) -> np.ndarray:
-    return np.ones_like(x)
+    rho_delta, rho_kappa, rho_lambda = GLOBAL_RHO
+    kappa_max = 1/((1-rho_lambda)*rho_kappa + rho_lambda)
+    kappa_min = rho_kappa*kappa_max
+    offset    = 1 - rho_lambda
+    epsilon   = 0.01
+    return kappa_min + (kappa_max - kappa_min) * 0.5 * (1 + np.tanh((x - offset) / epsilon))
+
