@@ -7,71 +7,22 @@ Module to scan over temporal variation in atmospheric concentration Ca using MPI
 from mpi4py import MPI
 import numpy as np
 import time
-from review.temporal.solver import TemporalSolver, get_homogeneous_solution
 import functools
-from review.utils.constants import TemporalConstants, general_oscillator, add_argparse_flags, general_delta, general_kappa
+from pathlib import Path 
 from argparse import ArgumentParser
-import os
+from review.temporal.solver import TemporalSolver 
+from review.steady.solver import SteadySolver
+from review.utils.homogeneous import homogeneous_solution  
+from review.utils.constants import TemporalConstants, fixed_delta, fixed_kappa, add_temporal_scanning_flags
+from review.utils.profiles import OscillatorProfile
+from review.utils.paths import ensure_temporal_scanning_paths, get_temporal_scanning_path
 
-
-def get_local_result_Ca(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
-    update_osc = functools.partial(general_oscillator, 
-                                   amplitude=amplitude, 
-                                   period=period)
-    timing = (0.0, tc.periods_to_run * period, tc.fraction_of_period * period)
-    solver = TemporalSolver(params,
-                            timing=timing,
-                            animate=False,
-                            update_delta=general_delta,
-                            update_kappa=general_kappa,
-                            update_atmospheric=update_osc)
-    times, alphas = solver.solve()
-    del solver
-    cutoff_index = int(len(alphas) * tc.periods_to_cut / tc.periods_to_run)
-    return times[cutoff_index:], alphas[cutoff_index:]
-
-def get_local_result_gs(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
-    update_osc = functools.partial(general_oscillator, 
-                                   amplitude=amplitude, 
-                                   period=period)    
-    timing = (0.0, tc.periods_to_run * period, tc.fraction_of_period * period)
-    solver = TemporalSolver(params,
-                            timing=timing,
-                            animate=False,
-                            update_delta=general_delta,
-                            update_kappa=general_kappa,
-                            update_stomata=update_osc)
-    times, alphas = solver.solve()
-    del solver
-    cutoff_index = int(len(alphas) * tc.periods_to_cut / tc.periods_to_run)
-    return times[cutoff_index:], alphas[cutoff_index:]
-
-
-def get_local_result_K(params: list[float], amplitude: float, period: float, tc: TemporalConstants) -> tuple[np.ndarray, np.ndarray]:
-    update_osc = functools.partial(general_oscillator, 
-                                   amplitude=amplitude, 
-                                   period=period)
-    timing = (0.0, tc.periods_to_run * period, tc.fraction_of_period * period)
-    def osc_kappa(x: np.ndarray, t: float) -> np.ndarray:
-        return general_kappa(x, t) * update_osc(x, t)
-    
-    solver = TemporalSolver(params,
-                            timing=timing,
-                            animate=False,
-                            update_delta=general_delta,
-                            update_kappa=osc_kappa)
-    times, alphas = solver.solve()
-    del solver
-    cutoff_index = int(len(alphas) * tc.periods_to_cut / tc.periods_to_run)
-    return times[cutoff_index:], alphas[cutoff_index:]
 
 
 def main(argv=None) -> int:
     parser = ArgumentParser(description="MPI Temporal Ca Scanner")
-    add_argparse_flags(parser)
+    add_temporal_scanning_flags(parser)
     args = parser.parse_args(argv)
-    parent_path = f"showcases/case{args.case}/{args.quantity}/"
-    os.makedirs(parent_path, exist_ok=True)
     #
     tc = TemporalConstants() 
     params = tc.get_case_params(args.case)
@@ -85,6 +36,7 @@ def main(argv=None) -> int:
     if rank == 0:
         # Start timer
         start_time = time.time()
+        ensure_temporal_scanning_paths()
     
     all_indices = np.arange(N_total)
     local_indices = all_indices[rank::size]
@@ -96,17 +48,39 @@ def main(argv=None) -> int:
         amplitude = amplitude_range[i]
         period = period_range[j]
         #
+        osc = OscillatorProfile(amplitude, period)
+        timing = (0.0, tc.periods_to_run * period, tc.fraction_of_period * period)
         if args.quantity == "Ca":
-            times, alphas = get_local_result_Ca(params, amplitude, period, tc)
+            solver = TemporalSolver(params,
+                                    timing=timing,
+                                    animate=False,
+                                    update_delta=fixed_delta,
+                                    update_kappa=fixed_kappa,
+                                    update_atmospheric=osc.generalize())
         elif args.quantity == "gs":
-            times, alphas = get_local_result_gs(params, amplitude, period, tc)
+            solver = TemporalSolver(params,
+                                    timing=timing,
+                                    animate=False,
+                                    update_delta=fixed_delta,
+                                    update_kappa=fixed_kappa,
+                                    update_stomata=osc.generalize())
         elif args.quantity == "K":
-            times, alphas = get_local_result_K(params, amplitude, period, tc)
+            def osc_kappa(x: np.ndarray, t: float) -> np.ndarray:
+                return fixed_kappa(x, t) * osc.generalize()(x, t)
+            solver = TemporalSolver(params,
+                                    timing=timing,
+                                    animate=False,
+                                    update_delta=fixed_delta,
+                                    update_kappa=osc_kappa)
+        times, alphas = solver.solve()
+        del solver
+        cutoff_index  = int(len(alphas) * tc.periods_to_cut / tc.periods_to_run)
+        times, alphas = times[cutoff_index:], alphas[cutoff_index:]
         #
         if args.save_series:
-            series_path = f"{parent_path}/timeseries/"
-            os.makedirs(series_path, exist_ok=True)
-            series_path += f"index{index}.txt"
+            series_path = get_temporal_scanning_path(args.case, args.quantity) / "timeseries"
+            series_path.mkdir(parents=True, exist_ok=True)
+            series_path /= f"index{index}.txt"
             np.savetxt(series_path, np.vstack((times, alphas)).T, delimiter=tc.delimiter)
         result = np.mean(alphas)
         local_results.append((index, result))
@@ -114,24 +88,26 @@ def main(argv=None) -> int:
     gathered_results = comm.gather(local_results, root=0)
 
     if rank == 0:
+        path = get_temporal_scanning_path(args.case, args.quantity)
         flat_results = np.empty(N_total, dtype=float)
         for chunk in gathered_results:
             for index, result in chunk:
                 flat_results[index] = result
-        
         results = flat_results.reshape((tc.n_amp, tc.n_period))
         header = f"params {params[0]}, {params[1]}, {params[2]}, amplitude_range ({tc.amp_min},{tc.amp_max},{tc.n_amp}), period_range ({tc.period_min},{tc.period_max},{tc.n_period})"
-        np.savetxt(f"showcases/case{args.case}/{args.quantity}/mean_alpha.txt", results, delimiter=tc.delimiter, header=header)
+        np.savetxt(path / "mean_alpha.txt", results, delimiter=tc.delimiter, header=header)
         #
-        alpha_hom = params[1] * (1 - get_homogeneous_solution(0, params))
-        np.savetxt(f"showcases/case{args.case}/{args.quantity}/alpha_hom.txt", np.array([alpha_hom]), delimiter=tc.delimiter, header=f"params {params[0]}, {params[1]}, {params[2]}")
+        alpha_hom = params[1] * (1 - homogeneous_solution(0, params))
+        np.savetxt(path / "alpha_hom.txt", np.array([alpha_hom]), delimiter=tc.delimiter, header=f"params {params[0]}, {params[1]}, {params[2]}")
         #
         if args.quantity == "K":
-            mesh, uh = ss_solver.solver(params, delta=functools.partial(general_delta, t=0), kappa=functools.partial(general_kappa, t=0), save=False)
-            domain, solution = utils.extract_solution_from_objects(mesh, uh)
+            solver = SteadySolver(params, 
+                                  display=True, 
+                                  display_name=path / "steady_chi.png", 
+                                  delta=functools.partial(fixed_delta, t=0), kappa=functools.partial(fixed_kappa, t=0))
+            domain, solution = solver.solve()
             alpha_het = params[1] * (1 - solution[0])
-            np.savetxt(f"showcases/case{args.case}/{args.quantity}/alpha_het.txt", np.array([alpha_het]), delimiter=tc.delimiter, header=f"params {params[0]}, {params[1]}, {params[2]}")
-
+            np.savetxt(path / "alpha_het.txt", np.array([alpha_het]), delimiter=tc.delimiter, header=f"params {params[0]}, {params[1]}, {params[2]}")
 
         end_time = time.time()
         print(f"Total computation time for case{args.case} - {args.quantity} : {end_time - start_time:.2f} seconds")

@@ -15,10 +15,6 @@ from dolfinx.fem.petsc import create_matrix, create_vector, assemble_vector, ass
 from typing import Callable
 import functools
 from review.steady.solver import SteadySolver
-from review.utils.homogeneous import homogeneous_solution
-
-
-
 
 class TemporalSolver:
     def __init__(self, 
@@ -157,8 +153,7 @@ class TemporalSolver:
         # --- initial condition ---
         chi_n            = fem.Function(self.functionspace, name="chi_n")
         x                = self.functionspace.tabulate_dof_coordinates()[:, 0]
-        x_initial = self.domain.geometry.x[:,0].copy()
-        chi_initial = np.interp(x, x_initial, self.initial_condition, left=self.initial_condition[0], right=self.initial_condition[-1])
+        chi_initial = np.interp(x, x, self.initial_condition, left=self.initial_condition[0], right=self.initial_condition[-1])
         chi_n.x.array[:] = chi_initial       
         chi_n.x.scatter_forward()
 

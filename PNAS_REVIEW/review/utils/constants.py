@@ -6,8 +6,12 @@ Module to hold global constants across variations of Ca, gs, K
 
 from dataclasses import dataclass 
 from argparse import ArgumentParser
+from review.utils.profiles import StepProfile
+import numpy as np
+from typing import Callable
 
 GLOBAL_RHO = (0.5, 0.6, 0.6)
+GLOBAL_EPSILON = 0.01
 
 @dataclass(frozen=True)
 class TemporalConstants:
@@ -46,9 +50,15 @@ class SteadyConstants:
     delimiter: str = ";"
 
 
-def get_global_rho() -> tuple[float, float, float]:
-    return GLOBAL_RHO
+def fixed_delta(x: np.ndarray, t: float) -> np.ndarray:
+    step = StepProfile(epsilon=GLOBAL_EPSILON, direction="down")
+    step.populate_rho(GLOBAL_RHO[0], GLOBAL_RHO[2])
+    return step.generalize()(x, t)
 
+def fixed_kappa(x: np.ndarray, t: float) -> np.ndarray:
+    step = StepProfile(epsilon=GLOBAL_EPSILON, direction="up")
+    step.populate_rho(GLOBAL_RHO[1], GLOBAL_RHO[2])
+    return step.generalize()(x, t)
 
 def add_temporal_scanning_flags(parser: ArgumentParser) -> None: 
     parser.add_argument("--case", type=str, choices=["A", "B", "C", "D", "E"], help="Case selection for parameters")
