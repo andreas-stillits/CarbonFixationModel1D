@@ -14,7 +14,7 @@ from review.plotting.constants import PlottingConstants
 pc = PlottingConstants()
 tc = TemporalConstants()
 
-VMIN = -0.10
+VMIN = 0
 VMAX = 0.10
 
 def fetch_data(case: str, quantity: str, het: bool = False) -> np.ndarray:
@@ -54,7 +54,7 @@ def generate_casemap(case: str) -> None:
 
 
 def generate_heatmap(ax: plt.Axes, data: np.ndarray, amplitudes: np.ndarray, periods: np.ndarray) -> None:
-    heatmap = ax.pcolor(periods, amplitudes, data, shading='auto', cmap=pc.CMAP)#, vmin=VMIN, vmax=VMAX) 
+    heatmap = ax.pcolor(periods, amplitudes, data, shading='auto', cmap=pc.CMAP, vmin=VMIN, vmax=VMAX) 
     plt.colorbar(heatmap, ax=ax)
     ax.set_xscale("log")
     ax.set_yscale("log")

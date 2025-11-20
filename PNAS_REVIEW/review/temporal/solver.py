@@ -42,21 +42,21 @@ class TemporalSolver:
         self.functionspace = functionspace
         self.animate = animate
         self.animation_name = animation_name
+        self.order = order
         self.update_delta = (lambda x, t: np.ones_like(x)) if update_delta is None else update_delta
         self.update_kappa = (lambda x, t: np.ones_like(x)) if update_kappa is None else update_kappa
         self.update_stomata = (lambda x, t: np.ones_like(x)) if update_stomata is None else update_stomata
         self.update_atmospheric = (lambda x, t: np.ones_like(x)) if update_atmospheric is None else update_atmospheric
         if initial_condition is None:
             steady_solver = SteadySolver(params, 
-                                         domain=domain, 
-                                         domain_resolution=domain_resolution, 
-                                         functionspace=functionspace, 
-                                         order=order, 
-                                         delta = functools.partial(update_delta, t=0.0),
-                                         kappa = functools.partial(update_kappa, t=0.0))
+                                         domain=self.domain, 
+                                         domain_resolution=self.domain_resolution, 
+                                         functionspace=self.functionspace, 
+                                         order=self.order, 
+                                         delta = functools.partial(self.update_delta, t=0.0),
+                                         kappa = functools.partial(self.update_kappa, t=0.0))
             _, chi_steady = steady_solver.solve()
             self.initial_condition = chi_steady
-        self.order = order
 
 
     def _setup_domain(self) -> tuple[ufl.Measure, ufl.Measure]:
