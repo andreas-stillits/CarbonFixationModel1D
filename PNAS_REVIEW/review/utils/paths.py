@@ -9,6 +9,20 @@ from pathlib import Path
 
 BASE_PATH = (Path(__file__).parent.parent.parent / "files").expanduser().resolve()
 
+# === STEADY ===
+
+def ensure_steady_scanning_paths(base_path: Path = BASE_PATH) -> None:
+    """Ensure the existence of paths for steady scanning results."""
+    steady_path = base_path / "steady_scanning"
+    steady_path.mkdir(parents=True, exist_ok=True)
+
+def get_steady_scanning_path(level: int = 0, base_path: Path = BASE_PATH) -> Path:
+    """Get the path for steady scanning results for a specific level."""
+    return base_path / "steady_scanning" / f"level{level}.txt"
+
+
+# === TEMPORAL ===
+
 def ensure_temporal_scanning_paths(base_path: Path = BASE_PATH) -> None:
     """Ensure the existence of paths for temporal scanning results."""
     temporal_path = base_path / "temporal_scanning"
@@ -28,3 +42,4 @@ def get_case_path(case: str, base_path: Path = BASE_PATH) -> Path:
 def get_temporal_scanning_path(case: str, quantity: str, base_path: Path = BASE_PATH) -> Path:
     """Get the path for temporal scanning results for a specific case and quantity."""
     return get_case_path(case, base_path=base_path) / quantity
+

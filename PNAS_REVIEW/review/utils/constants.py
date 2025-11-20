@@ -47,6 +47,20 @@ class TemporalConstants:
 @dataclass(frozen=True)
 class SteadyConstants:
 
+    beta_min: float = 0.3
+    beta_max: float = 3.0
+    n_beta: int = 5 
+
+    tau_min: float = 0.01
+    tau_max: float = 100.0
+    n_tau: int = 10
+
+    gamma_min: float = 0.01
+    gamma_max: float = 100.0
+    n_gamma: int = 10
+
+    chi_: float = 0.1
+
     delimiter: str = ";"
 
 
