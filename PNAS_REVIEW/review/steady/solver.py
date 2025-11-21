@@ -17,7 +17,7 @@ from typing import Callable
 
 class SteadySolver:
     def __init__(self,
-                 params: list[float],
+                 params: list[float], # tau, gamma, chi_
                  domain: mesh.Mesh | None = None,
                  domain_resolution: int = 100,
                  functionspace: fem.FunctionSpace | None = None,
@@ -83,7 +83,9 @@ class SteadySolver:
         L = - tau2 * kappa * chi_ * v * dx \
             - gamma * v * ds(1)
         
-        problem = LinearProblem(a, L, bcs=[], petsc_options={"ksp_type": "preonly", "pc_type": "lu"})
+        problem = LinearProblem(a, L, bcs=[], 
+                                petsc_options={"ksp_type": "preonly", 
+                                               "pc_type": "lu"})
         uh = problem.solve()   
 
         # extract numpy domain and solution

@@ -6,6 +6,11 @@ Module for plotting results
 
 import numpy as np 
 import matplotlib.pyplot as plt
+import pyvista as pv 
+from dolfinx.plot import vtk_mesh 
+import adios4dolfinx as a4x
+from mpi4py import MPI
+from dolfinx import fem
 from review.plotting.constants import PlottingConstants 
 
 pc = PlottingConstants()
@@ -44,4 +49,23 @@ def plot_sensitivity_map(filename: str, bounds=(0, 26, 14)):
     plt.ylim(0.01, 100)
     plt.gca().set_aspect('equal')
     plt.show()
-    
+
+
+
+def plot_3d_solution(filename: str) -> None:
+    """ Plot the 3D solution from file """
+    mesh = a4x.read_mesh(filename, MPI.COMM_SELF)
+    V = fem.functionspace(mesh, ("Lagrange", 1))
+    uh = fem.Function(V)
+    a4x.read_function(filename, uh, name="solution")
+    #        
+    topology, cell_types, geometry = vtk_mesh(mesh, mesh.topology.dim)
+    grid = pv.UnstructuredGrid(topology, cell_types, geometry)
+    grid.point_data["uh"] = uh.x.array.real
+    xmin, xmax, ymin, ymax, zmin, zmax = grid.bounds
+    slices = grid.slice_orthogonal(x=(xmin+xmax)/2, y=(ymin+ymax)/2, z=(zmin+zmax)/2)
+    p = pv.Plotter(notebook=True)
+    p.add_mesh(slices, scalars="uh", cmap="viridis", clim=[0, np.max(uh.x.array.real)])
+    p.add_mesh(grid.outline(), color="k")
+    p.show_axes()
+    p.show()
