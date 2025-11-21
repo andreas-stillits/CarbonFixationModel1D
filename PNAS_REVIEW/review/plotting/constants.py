@@ -5,7 +5,6 @@ Module for plotting constants
 """
 
 import matplotlib as mpl 
-from matplotlib.pyplot import get_cmap
 import numpy as np
 from dataclasses import dataclass
 
@@ -13,7 +12,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class PlottingConstants:
 
-    CMAP = "viridis"
+    tau_lines_sensitivity: list[float] = (0.248, 0.352, 0.570)  # 1%, 2%, 5% relative error lines
 
     def set_standard_layout(self) -> None:
         mpl.rcParams['mathtext.fontset'] = 'stix'  # or 'dejavusans', 'cm', 'custom'
@@ -24,7 +23,7 @@ class PlottingConstants:
         # set default fontsize
         mpl.rcParams['font.size'] = 14
 
-    def get_cmap(self, bounds: tuple[float, float, float]):
+    def get_blue_cmap(self, bounds: tuple[float, float, float]):
         min, max, res = bounds
         colors = ['#001261',
     '#02236C',
@@ -51,5 +50,3 @@ class PlottingConstants:
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         return cmap, norm
 
-def standardize(self) -> None:
-    pass

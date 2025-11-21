@@ -53,11 +53,11 @@ class SteadyConstants:
 
     tau_min: float = 0.01
     tau_max: float = 100.0
-    n_tau: int = 10
+    n_tau: int = 50
 
     gamma_min: float = 0.01
     gamma_max: float = 100.0
-    n_gamma: int = 10
+    n_gamma: int = 50
 
     chi_: float = 0.1
 
