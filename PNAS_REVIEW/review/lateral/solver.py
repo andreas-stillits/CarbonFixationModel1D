@@ -7,8 +7,9 @@ Module for solving a simple 3d continuous cylindrical problem wit discrete stoma
 from mpi4py import MPI
 from petsc4py import PETSc
 import adios4dolfinx as a4x
+from pathlib import Path
 import ufl 
-from dolfinx import fem
+from dolfinx import fem, default_scalar_type
 from dolfinx.fem.petsc import LinearProblem
 from dolfinx.io import gmshio
 from review.lateral.create_mesh import ASPECT_RATIO, FILENAME
@@ -21,8 +22,8 @@ class Steady3DSolver:
                 stomatal_ratio: float = 1.0,
                 stomatal_blur: float = 0.02,
                 aspect_ratio: float = ASPECT_RATIO,
-                meshfile: str = FILENAME,
-                filename: str = "../files/3d/steady3d.bp",
+                meshfile: str | Path = FILENAME,
+                filename: str | Path = "../files/3d/steady3d.bp",
                 order: int = 1) -> None:
         self.tau = params[0]
         self.gamma = params[1]
@@ -31,8 +32,8 @@ class Steady3DSolver:
         self.stomatal_blur = stomatal_blur
         self.aspect_ratio = aspect_ratio
         self.stomatal_radius = stomatal_ratio * aspect_ratio
-        self.meshfile = meshfile
-        self.filename = filename
+        self.meshfile = meshfile if isinstance(meshfile, Path) else Path(meshfile)
+        self.filename = filename if isinstance(filename, Path) else Path(filename)
         self.order = order
 
     def solve(self) -> None:
@@ -47,14 +48,14 @@ class Steady3DSolver:
         dx = ufl.Measure("dx", domain=mesh, subdomain_data=cell_tags)
         ds = ufl.Measure("ds", domain=mesh, subdomain_data=facet_tags)
 
-        tau2 = fem.Constant(mesh, PETSc.ScalarType(self.tau**2))
-        chi_ = fem.Constant(mesh, PETSc.ScalarType(self.chi_))
+        tau2 = fem.Constant(mesh, default_scalar_type(self.tau**2))
+        chi_ = fem.Constant(mesh, default_scalar_type(self.chi_))
 
         chi = ufl.TrialFunction(functionspace)
         v   = ufl.TestFunction(functionspace)
         x   = ufl.SpatialCoordinate(mesh)
         #
-        phi   = (x[0]**2 + x[1]**2 - self.stomatal_radius**2)
+        phi   = (x[0]**2 + x[1]**2 - self.stomatal_radius**2) # type: ignore[reportIndexIssue]
         gamma = self.gamma * 0.5*(1 - ufl.tanh(phi/self.stomatal_blur))
         #
         # Weak form
