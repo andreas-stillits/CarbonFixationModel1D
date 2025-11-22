@@ -8,42 +8,38 @@ import numpy as np
 from mpi4py import MPI
 from petsc4py import PETSc
 import ufl 
-from dolfinx import fem, mesh
+from dolfinx import fem, mesh, default_scalar_type
 from dolfinx.fem.petsc import LinearProblem
 import matplotlib.pyplot as plt 
-from typing import Callable
+from typing import Callable, Optional, cast
 
 
 
 class SteadySolver:
     def __init__(self,
                  params: list[float], # tau, gamma, chi_
-                 domain: mesh.Mesh | None = None,
+                 domain: Optional[mesh.Mesh] = None,
                  domain_resolution: int = 100,
-                 functionspace: fem.FunctionSpace | None = None,
+                 functionspace: Optional[fem.FunctionSpace] = None,
                  display: bool = False,
                  display_name: str = "chi_steady.png",
                  order: int = 1,
-                 delta: Callable[[np.ndarray], np.ndarray] | None = None,
-                 kappa: Callable[[np.ndarray], np.ndarray] | None = None):
+                 delta: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+                 kappa: Optional[Callable[[np.ndarray], np.ndarray]] = None):
         self.tau = params[0]
         self.gamma = params[1]
         self.chi_ = params[2]
-        self.domain = domain
         self.domain_resolution = domain_resolution
-        self.functionspace = functionspace
+        self.domain = mesh.create_interval(MPI.COMM_SELF, domain_resolution, [0.0, 1.0]) if domain is None else domain
+        self.order = order
+        self.functionspace = fem.functionspace(self.domain, ("CG", self.order)) if functionspace is None else functionspace
         self.display = display
         self.display_name = display_name
-        self.order = order
         self.delta = (lambda x: np.ones_like(x)) if delta is None else delta
         self.kappa = (lambda x: np.ones_like(x)) if kappa is None else kappa
 
     def _setup_domain(self) -> tuple[ufl.Measure, ufl.Measure]:
-        if self.domain is None:
-            self.domain = mesh.create_interval(MPI.COMM_SELF, self.domain_resolution, [0.0, 1.0])
-        if self.functionspace is None:
-            self.functionspace = fem.functionspace(self.domain, ("CG", self.order))
-        # --- Create facet tags --- 
+         # --- Create facet tags --- 
         tdim = self.domain.topology.dim 
         fdim = tdim - 1
         facets_left = mesh.locate_entities(self.domain, fdim, lambda x: np.isclose(x[0], 0.0))
@@ -60,9 +56,9 @@ class SteadySolver:
         dx, ds = self._setup_domain()
         
         # --- simulation parameters ---
-        tau2  = fem.Constant(self.domain, PETSc.ScalarType(self.tau**2))
-        gamma = fem.Constant(self.domain, PETSc.ScalarType(self.gamma))
-        chi_  = fem.Constant(self.domain, PETSc.ScalarType(self.chi_))
+        tau2  = fem.Constant(self.domain, default_scalar_type(self.tau**2))
+        gamma = fem.Constant(self.domain, default_scalar_type(self.gamma))
+        chi_  = fem.Constant(self.domain, default_scalar_type(self.chi_))
         
         # --- Trial and Test Functions ---
         chi = ufl.TrialFunction(self.functionspace)
@@ -70,18 +66,20 @@ class SteadySolver:
         x   = self.functionspace.tabulate_dof_coordinates()[:, 0]
 
         delta = fem.Function(self.functionspace, name="delta")
+        delta = cast(fem.Function, delta)
         delta.x.array[:] = self.delta(x)
         
         kappa = fem.Function(self.functionspace, name="kappa")
+        kappa = cast(fem.Function, kappa)
         kappa.x.array[:] = self.kappa(x)
 
         # build forms
         a = - delta * ufl.inner(ufl.grad(chi), ufl.grad(v)) * dx \
             - tau2 * kappa * chi * v * dx \
-            - gamma * chi * v * ds(1)
+            - gamma * chi * v * ds(1)                            
         
         L = - tau2 * kappa * chi_ * v * dx \
-            - gamma * v * ds(1)
+            - gamma * v * ds(1)                                    
         
         problem = LinearProblem(a, L, bcs=[], 
                                 petsc_options={"ksp_type": "preonly", 

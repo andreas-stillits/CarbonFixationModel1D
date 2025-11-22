@@ -10,9 +10,9 @@ from petsc4py import PETSc
 import numpy as np
 import pyvista 
 import ufl
-from dolfinx import mesh, fem, plot
+from dolfinx import mesh, fem, plot, default_scalar_type
 from dolfinx.fem.petsc import create_matrix, create_vector, assemble_vector, assemble_matrix
-from typing import Callable
+from typing import Callable, Optional, cast
 import functools
 from review.steady.solver import SteadySolver
 
@@ -20,29 +20,29 @@ class TemporalSolver:
     def __init__(self, 
                  params: list[float], # [tau, gamma, chi_]
                  timing: tuple[float, float, float] = (0.0, 1.0, 0.01),
-                 domain: mesh.Mesh | None = None, 
+                 domain: Optional[mesh.Mesh] = None, 
                  domain_resolution: int = 100, 
-                 functionspace: fem.FunctionSpace | None = None,
+                 functionspace: Optional[fem.FunctionSpace] = None,
                  animate: bool = False,
                  animation_name: str = "chi_time.gif",
                  order: int = 1,
-                 update_delta: Callable[[np.ndarray, float], np.ndarray] | None = None,
-                 update_kappa: Callable[[np.ndarray, float], np.ndarray] | None = None,
-                 update_stomata: Callable[[np.ndarray, float], np.ndarray] | None = None,
-                 update_atmospheric: Callable[[np.ndarray, float], np.ndarray] | None = None,
-                 initial_condition: np.ndarray | None = None):
+                 update_delta: Optional[Callable[[np.ndarray, float], np.ndarray]] = None,
+                 update_kappa: Optional[Callable[[np.ndarray, float], np.ndarray]] = None,
+                 update_stomata: Optional[Callable[[np.ndarray, float], np.ndarray]] = None,
+                 update_atmospheric: Optional[Callable[[np.ndarray, float], np.ndarray]] = None,
+                 initial_condition: Optional[np.ndarray] = None):
         self.tau = params[0]
         self.gamma = params[1]
         self.chi_ = params[2]
         self.t_start = timing[0]
         self.t_end = timing[1]
         self.dt = timing[2]
-        self.domain = domain
         self.domain_resolution = domain_resolution
-        self.functionspace = functionspace
+        self.domain = mesh.create_interval(MPI.COMM_SELF, domain_resolution, [0.0, 1.0]) if domain is None else domain
+        self.order = order
+        self.functionspace = fem.functionspace(self.domain, ("CG", self.order)) if functionspace is None else functionspace
         self.animate = animate
         self.animation_name = animation_name
-        self.order = order
         self.update_delta = (lambda x, t: np.ones_like(x)) if update_delta is None else update_delta
         self.update_kappa = (lambda x, t: np.ones_like(x)) if update_kappa is None else update_kappa
         self.update_stomata = (lambda x, t: np.ones_like(x)) if update_stomata is None else update_stomata
@@ -60,10 +60,6 @@ class TemporalSolver:
 
 
     def _setup_domain(self) -> tuple[ufl.Measure, ufl.Measure]:
-        if self.domain is None:
-            self.domain = mesh.create_interval(MPI.COMM_SELF, self.domain_resolution, [0.0, 1.0])
-        if self.functionspace is None:
-            self.functionspace = fem.functionspace(self.domain, ("CG", self.order))
         # --- Create facet tags --- 
         tdim = self.domain.topology.dim 
         fdim = tdim - 1
@@ -77,7 +73,7 @@ class TemporalSolver:
         return dx, ds 
     
 
-    def _setup_plotting(self, chi_n: fem.Function) -> tuple[pyvista.pyvista_ndarray, pyvista.UnstructuredGrid, pyvista.Plotter]:
+    def _setup_plotting(self, chi_n: fem.Function) -> tuple[np.ndarray, pyvista.UnstructuredGrid, pyvista.Plotter]:
         grid = pyvista.UnstructuredGrid(*plot.vtk_mesh(self.functionspace))
         xcoords = grid.points[:, 0].copy()
         grid.point_data["chi"] = chi_n.x.array.copy()  
@@ -122,8 +118,8 @@ class TemporalSolver:
         cube.SetLabelOffset(4)
         
         plotter.view_xy()
-        plotter.set_focus((0.5, 0.5, 0.0))
-        plotter.set_position((0.5, 0.5, 10.0))
+        plotter.set_focus((0.5, 0.5, 0.0)) # type: ignore[reportArgumentType]
+        plotter.set_position((0.5, 0.5, 10.0)) # type: ignore[reportArgumentType]
         plotter.camera.parallel_projection = True
         plotter.camera.SetParallelScale(0.5)
         plotter.camera.zoom(0.8)
@@ -137,31 +133,32 @@ class TemporalSolver:
         dx, ds = self._setup_domain()
         
         # --- simulation parameters ---
-        tau2  = fem.Constant(self.domain, PETSc.ScalarType(self.tau**2))
-        gamma = fem.Constant(self.domain, PETSc.ScalarType(self.gamma))
-        chi_  = fem.Constant(self.domain, PETSc.ScalarType(self.chi_))
+        tau2  = fem.Constant(self.domain, default_scalar_type(self.tau**2))
+        gamma = fem.Constant(self.domain, default_scalar_type(self.gamma))
+        chi_  = fem.Constant(self.domain, default_scalar_type(self.chi_))
         
         # --- Trial and Test Functions ---
         chi = ufl.TrialFunction(self.functionspace)
         v   = ufl.TestFunction(self.functionspace)
         
         # --- time stepping parameters --- 
-        dt        = fem.Constant(self.domain, PETSc.ScalarType(self.dt))
+        dt        = fem.Constant(self.domain, default_scalar_type(self.dt))
         num_steps = int(np.ceil((self.t_end - self.t_start) / self.dt))
         t         = self.t_start
 
         # --- initial condition ---
         chi_n            = fem.Function(self.functionspace, name="chi_n")
+        chi_n            = cast(fem.Function, chi_n)
         x                = self.functionspace.tabulate_dof_coordinates()[:, 0]
         chi_initial = np.interp(x, x, self.initial_condition, left=self.initial_condition[0], right=self.initial_condition[-1])
         chi_n.x.array[:] = chi_initial       
         chi_n.x.scatter_forward()
 
         # --- time dependent coefficients ---
-        delta_t       = fem.Function(self.functionspace, name="delta_t")
-        kappa_t       = fem.Function(self.functionspace, name="kappa_t")
-        stomata_t     = fem.Function(self.functionspace, name="stomata_t")
-        atmospheric_t = fem.Function(self.functionspace, name="atmospheric_t")
+        delta_t       = fem.Function(self.functionspace, name="delta_t"); delta_t = cast(fem.Function, delta_t)
+        kappa_t       = fem.Function(self.functionspace, name="kappa_t"); kappa_t = cast(fem.Function, kappa_t)
+        stomata_t     = fem.Function(self.functionspace, name="stomata_t"); stomata_t = cast(fem.Function, stomata_t)
+        atmospheric_t = fem.Function(self.functionspace, name="atmospheric_t"); atmospheric_t = cast(fem.Function, atmospheric_t)
 
         # --- variational forms for backwards euler ---
         d, k, s, ca = delta_t, kappa_t, stomata_t, atmospheric_t # aliases for readability in forms
@@ -179,13 +176,13 @@ class TemporalSolver:
         L = fem.form(L) 
 
         # precreate PETSc objects with correct sparsity pattern 
-        A = create_matrix(a)
-        b = create_vector(L)    
+        A = create_matrix(a) # type: ignore[reportArgumentType]
+        b = create_vector(L) # type: ignore[reportArgumentType]
         ksp = PETSc.KSP().create(MPI.COMM_SELF)
         ksp.setType("cg")          # SPD for this model (with Dirichlet or pure Neumann + mass term)
         ksp.getPC().setType("hypre")
         ksp.setTolerances(rtol=1e-10, atol=1e-12, max_it=500)
-        chi_new = fem.Function(self.functionspace, name="chi_new")
+        chi_new = fem.Function(self.functionspace, name="chi_new"); chi_new = cast(fem.Function, chi_new)
 
         # --- create animation objects if requested ---
         if self.animate:
@@ -226,15 +223,15 @@ class TemporalSolver:
 
             # --- update plotting --- 
             if self.animate:
-                grid.point_data["chi"][:] = chi_new.x.array
-                grid.points[:,:] = np.c_[xcoords, 
+                grid.point_data["chi"][:] = chi_new.x.array # type: ignore[reportArgumentType]
+                grid.points[:,:] = np.c_[xcoords, # type: ignore[reportArgumentType]
                                          chi_new.x.array,
-                                         np.zeros_like(xcoords)]  # x, chi, 0
+                                         np.zeros_like(xcoords)]  #
                 plotter.write_frame()
             
             # --- extract rescaled assimilation rate at this time step ---
             times.append(t)
-            alpha = fem.assemble_scalar(fem.form(tau2 * kappa_t * (chi_new - chi_)*dx))
+            alpha = fem.assemble_scalar(fem.form(tau2 * kappa_t * (chi_new - chi_)*dx)) # type: ignore[reportArgumentType]
             alphas.append(alpha)
             # END INTEGRATION LOOP
         
