@@ -106,7 +106,7 @@ class TemporalSolver:
 
         vmin, vmax = 0.0, 1.0 
         bounds = (vmin, vmax, vmin, vmax, 0.0, 0.0)
-        cube = plotter.show_grid(
+        cube = plotter.show_grid( # type: ignore[reportCallIssue]
             bounds=bounds,
             location="outer",
             xtitle=r"$\lambda$ (normalized depth)",
@@ -117,7 +117,7 @@ class TemporalSolver:
         )
         cube.SetLabelOffset(4)
         
-        plotter.view_xy()
+        plotter.view_xy() # type: ignore[reportCallIssue]
         plotter.set_focus((0.5, 0.5, 0.0)) # type: ignore[reportArgumentType]
         plotter.set_position((0.5, 0.5, 10.0)) # type: ignore[reportArgumentType]
         plotter.camera.parallel_projection = True
@@ -178,7 +178,7 @@ class TemporalSolver:
         # precreate PETSc objects with correct sparsity pattern 
         A = create_matrix(a) # type: ignore[reportArgumentType]
         b = create_vector(L) # type: ignore[reportArgumentType]
-        ksp = PETSc.KSP().create(MPI.COMM_SELF)
+        ksp = PETSc.KSP().create(MPI.COMM_SELF) # type: ignore[reportAttributeAccessIssue]
         ksp.setType("cg")          # SPD for this model (with Dirichlet or pure Neumann + mass term)
         ksp.getPC().setType("hypre")
         ksp.setTolerances(rtol=1e-10, atol=1e-12, max_it=500)
@@ -217,7 +217,7 @@ class TemporalSolver:
             ksp.solve(b, chi_new.x.petsc_vec)
             
             # update for next time step
-            chi_new.x.petsc_vec.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD)
+            chi_new.x.petsc_vec.ghostUpdate(addv=PETSc.InsertMode.INSERT, mode=PETSc.ScatterMode.FORWARD) # type: ignore[reportAttributeAccessIssue]
             chi_n.x.array[:] = chi_new.x.array
             chi_n.x.scatter_forward() 
 
