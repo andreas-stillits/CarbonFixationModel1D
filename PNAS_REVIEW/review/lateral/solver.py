@@ -5,7 +5,6 @@ Module for solving a simple 3d continuous cylindrical problem wit discrete stoma
 """
 
 from mpi4py import MPI
-from petsc4py import PETSc
 import adios4dolfinx as a4x
 from pathlib import Path
 import ufl 
