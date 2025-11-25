@@ -9,8 +9,7 @@ import numpy as np
 import time
 
 """
-The work to be done must be encoded in a Systems class that exposes
-- ensure_base_path() -> None:                            where to store results
+The work to be done must be encoded in a Systems class that exposes                           where to store results
 - get_scan_arrays() -> tuple[np.ndarray, np.ndarray]:    the two arrays to scan over
 - compute_result(param1: float, param2: float) -> float: compute the result for given parameters
 - save_results(results: np.ndarray) -> None:             save the final results array
@@ -18,15 +17,13 @@ The work to be done must be encoded in a Systems class that exposes
 """
 
 
-def parallelize(system) -> None:
-    # initialize MPI communicator 
-    comm = MPI.COMM_WORLD
+def parallelize(system, comm: MPI.Intracomm) -> None:
+    # initialize MPI communicator info
     rank = comm.Get_rank()
     size = comm.Get_size()
     # start timing on rank 0 
     if rank == 0:
         start_time = time.time()
-        system.ensure_base_path() 
 
     # extract data and shapes
     arr1, arr2 = system.get_scan_arrays()
@@ -57,4 +54,4 @@ def parallelize(system) -> None:
         results = flat_results.reshape((n1, n2))
         system.save_results(results)
         end_time = time.time()
-        print(f"2D scanning completed in {end_time - start_time:.2f} seconds")
+        print(f"2D scanning completed in {(end_time - start_time):.2f} seconds")

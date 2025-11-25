@@ -7,7 +7,7 @@ Module to generate a heatmap matrix for a given case
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from review.utils.constants import TemporalConstants
+from PNAS_REVIEW.review.utils.constants__ import TemporalConstants
 from review.utils.paths import get_case_path, get_temporal_scanning_path
 from review.plotting.constants import PlottingConstants
 

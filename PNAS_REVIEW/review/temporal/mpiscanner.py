@@ -13,7 +13,7 @@ from argparse import ArgumentParser
 from review.temporal.solver import TemporalSolver 
 from review.steady.solver import SteadySolver
 from review.utils.homogeneous import homogeneous_solution  
-from review.utils.constants import TemporalConstants, fixed_delta, fixed_kappa, add_temporal_scanning_flags
+from PNAS_REVIEW.review.utils.constants__ import TemporalConstants, fixed_delta, fixed_kappa, add_temporal_scanning_flags
 from review.utils.profiles import OscillatorProfile
 from review.utils.paths import ensure_temporal_scanning_paths, get_temporal_scanning_path
 
