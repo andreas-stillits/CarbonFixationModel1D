@@ -7,7 +7,6 @@ Scan over (tau, gamma) space to reproduce figure 3C for exponential profiles
 
 from review.nonlinear.solver import NonlinearSolver
 from review.utils.constants import NonlinearExploration
-from review.utils.homogeneous import homogeneous_solution 
 from review.utils.profiles import StepProfile
 from review.utils.mpiscan2d import parallelize 
 from mpi4py import MPI 
@@ -27,12 +26,16 @@ class System():
 
     def compute_result(self, tau: float, gamma: float) -> float:
         c = self.constants # alias
-        params = [tau, gamma, c.chi_]
+        params = (tau, gamma, c.chi_)
         mu = self.mu 
         rho_kappas = c.get_rho_kappa_range()
         rho_deltas = c.get_rho_delta_range()
         rho_lambdas = c.get_rho_lambda_range()
-        drawdown_hom = 1 - homogeneous_solution(0.0, params)
+        # get homogeneous non-linear solution
+        solver = NonlinearSolver(params, mu)
+        domain, homogeneous_solution = solver.solve()
+        del solver
+        drawdown_hom = 1 - homogeneous_solution[0]
         relative_drawdowns = np.zeros(c.n_rho**3)
         count = 0
         for idx1 in range(c.n_rho):

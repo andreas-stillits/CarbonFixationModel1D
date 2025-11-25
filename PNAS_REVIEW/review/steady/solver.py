@@ -17,7 +17,7 @@ from typing import Callable, Optional, cast
 
 class SteadySolver:
     def __init__(self,
-                 params: list[float], # tau, gamma, chi_
+                 params: tuple[float, float, float], # tau, gamma, chi_
                  domain: Optional[mesh.Mesh] = None,
                  domain_resolution: int = 100,
                  functionspace: Optional[fem.FunctionSpace] = None,

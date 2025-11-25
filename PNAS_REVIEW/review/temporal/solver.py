@@ -18,7 +18,7 @@ from review.steady.solver import SteadySolver
 
 class TemporalSolver:
     def __init__(self, 
-                 params: list[float], # [tau, gamma, chi_]
+                 params: tuple[float, float, float], # [tau, gamma, chi_]
                  timing: tuple[float, float, float] = (0.0, 1.0, 0.01),
                  domain: Optional[mesh.Mesh] = None, 
                  domain_resolution: int = 100, 

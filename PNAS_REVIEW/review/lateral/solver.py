@@ -17,7 +17,7 @@ from review.lateral.create_mesh import ASPECT_RATIO, FILENAME
 
 class Steady3DSolver:
     def __init__(self, 
-                params: list[float], # tau, gamma, chi_
+                params: tuple[float, float, float], # tau, gamma, chi_
                 stomatal_ratio: float = 1.0,
                 stomatal_blur: float = 0.02,
                 aspect_ratio: float = ASPECT_RATIO,

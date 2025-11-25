@@ -11,7 +11,7 @@ from typing import Callable, Optional, cast
 
 class NonlinearSolver: 
     def __init__(self, 
-                params: list[float], # tau, gamma, chi_
+                params: tuple[float, float, float], # tau, gamma, chi_
                 mu: float = 0.0,
                 domain: Optional[mesh.Mesh] = None,
                 domain_resolution: int = 100,
