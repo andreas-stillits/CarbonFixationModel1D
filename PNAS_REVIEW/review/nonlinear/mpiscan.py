@@ -70,8 +70,8 @@ def main(argv: list[str] | None = None) -> int:
     comm = MPI.COMM_WORLD 
     rank = comm.Get_rank()
     size = comm.Get_size()
-    if rank == 0: 
-        print(f"Running with {size} rank(s) for nonlinear exploration of figure 3C")
+    if rank == 0:
+        print(f"Running with {size} rank(s) and mu={args.mu} for nonlinear exploration of figure 3C", flush=True)
     parallelize(System(NonlinearExploration(), args.mu), comm)
 
     return 0

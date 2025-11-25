@@ -115,18 +115,18 @@ class ReproduceWithExponentials:
 
 @dataclass
 class NonlinearExploration:
-    rho_delta_min: float = 0.4
-    rho_kappa_min: float = 0.4
+    rho_delta_min: float = 0.2
+    rho_kappa_min: float = 0.2
     rho_lambda_min: float = 0.2
     n_rho: int = 3
 
     tau_min: float = 0.01
     tau_max: float = 100.0
-    n_tau: int = 50
+    n_tau: int = 100
 
     gamma_min: float = 0.01
     gamma_max: float = 100.0
-    n_gamma: int = 50
+    n_gamma: int = 100
 
     chi_: float = 0.1
 
