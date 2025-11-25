@@ -79,17 +79,17 @@ class TemporalExploration:
 
 @dataclass
 class ReproduceWithExponentials:
-    beta_min: float = 0.3
-    beta_max: float = 3.0
+    beta_min: float = 0.25
+    beta_max: float = 2.5
     n_beta: int = 5 
 
     tau_min: float = 0.01
     tau_max: float = 100.0
-    n_tau: int = 50
+    n_tau: int = 100
 
     gamma_min: float = 0.01
     gamma_max: float = 100.0
-    n_gamma: int = 50
+    n_gamma: int = 100
 
     chi_: float = 0.1
 

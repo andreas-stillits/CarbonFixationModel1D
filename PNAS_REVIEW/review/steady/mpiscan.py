@@ -25,9 +25,9 @@ class System():
 
     def compute_result(self, tau: float, gamma: float) -> float:
         c = self.constants # alias
-        params = [tau, gamma, c.chi_]
+        params = (tau, gamma, c.chi_)
         betas = c.get_beta_range()
-        drawdown_hom = 1 - homogeneous_solution(0.0, params)
+        drawdown_hom = 1 - homogeneous_solution(0.0, params) # type: ignore[reportArgumentType]
         relative_drawdowns = np.zeros(c.n_beta**2)
         count = 0
         for idx1 in range(c.n_beta):
@@ -56,7 +56,7 @@ def main() -> int:
     rank = comm.Get_rank()
     size = comm.Get_size()
     if rank == 0: 
-        print(f"Running with {size} rank(s) for reproducing figure 3C with exponentials")
+        print(f"Running with {size} rank(s) for reproducing figure 3C with exponentials", flush=True)
     parallelize(System(ReproduceWithExponentials()), comm)
 
     return 0
