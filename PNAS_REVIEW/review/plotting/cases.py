@@ -7,12 +7,10 @@ Module to generate a heatmap matrix for a given case
 import numpy as np
 import matplotlib.pyplot as plt
 from pathlib import Path
-from PNAS_REVIEW.review.utils.constants__ import TemporalConstants
 from review.utils.paths import get_case_path, get_temporal_scanning_path
 from review.plotting.constants import PlottingConstants
 
 pc = PlottingConstants()
-tc = TemporalConstants()
 
 VMIN = 0
 VMAX = 0.10
@@ -54,11 +52,11 @@ def generate_casemap(case: str) -> None:
 
 
 def generate_heatmap(ax: plt.Axes, data: np.ndarray, amplitudes: np.ndarray, periods: np.ndarray) -> None:
-    heatmap = ax.pcolor(periods, amplitudes, data, shading='auto', cmap=pc.CMAP, vmin=VMIN, vmax=VMAX) 
+    heatmap = ax.pcolor(periods, amplitudes, data.T, shading='auto', cmap=pc.CMAP, vmin=VMIN, vmax=VMAX) 
     plt.colorbar(heatmap, ax=ax)
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_xlabel("Period []")
     ax.set_ylabel("Amplitude []")
-    ax.set_xlim(tc.period_min, tc.period_max)
-    ax.set_ylim(tc.amp_min, tc.amp_max)
+    ax.set_xlim(np.min(periods), np.max(periods))
+    ax.set_ylim(np.min(amplitudes), np.max(amplitudes))

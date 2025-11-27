@@ -13,6 +13,7 @@ kernel = gmsh.model.occ
 ASPECT_RATIO = 0.3
 FILENAME = Path(__file__).parent / "cylinder.msh"
 MESH_SIZE = 0.05  # global mesh size
+OPEN_GUI = True
 
 
 def main():
@@ -52,7 +53,8 @@ def main():
     gmsh.model.mesh.generate(3)
     gmsh.write(str(FILENAME))
     # open gui
-    gmsh.fltk.run()
+    if OPEN_GUI:
+        gmsh.fltk.run()
     gmsh.finalize()
 
 

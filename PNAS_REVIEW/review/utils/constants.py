@@ -41,30 +41,32 @@ class Cases:
 class TemporalExploration:
     amp_min: float = 0.01
     amp_max: float = 0.5
-    n_amp: int = 4
+    n_amp: int = 7
 
-    period_min: float = 0.1
-    period_max: float = 10.0
-    n_period: int = 8
+    period_min: float = 0.02
+    period_max: float = 20.0
+    n_period: int = 9
 
-    periods_to_run: int = 20
+    periods_to_run: int = 15
     periods_to_cut: int = 10
     fraction_of_period: float = 0.05
 
     # fixed delta, kappa profiles
     epsilon: float = 0.02
-    rho: tuple[float, float, float] = (0.5, 0.6, 0.6)
+    rho: tuple[float, float, float] = (0.5, 0.5, 0.6)
 
     delimiter: str = ";"
+    
+    foldername: str = "temporal_scanning/tmp/"
 
     def get_amplitude_range(self) -> np.ndarray:
-        return _get_log_range(self.amp_min, self.amp_max, self.n_amp)
+        return np.linspace(self.amp_min, self.amp_max, self.n_amp)
     
     def get_period_range(self) -> np.ndarray:
         return _get_log_range(self.period_min, self.period_max, self.n_period)
 
-    def get_timing(self) -> tuple[float, float, float]:
-        return (0.0, self.periods_to_run*self.period, self.fraction_of_period*self.period)
+    def get_timing(self, period: float) -> tuple[float, float, float]:
+        return (0.0, self.periods_to_run*period, self.fraction_of_period*period)
     
     def get_fixed_delta(self,x: np.ndarray, t: float) -> np.ndarray:
         step = StepProfile(epsilon=self.epsilon, direction="down")
@@ -75,6 +77,12 @@ class TemporalExploration:
         step = StepProfile(epsilon=self.epsilon, direction="up")
         step.populate_rho(self.rho[1], self.rho[2])
         return step.generalize()(x, t)   
+    
+    def get_base_path(self, case: str, quantity: str) -> Path:
+        base_path = paths.get_base_path(ensure=True) / self.foldername / quantity
+        base_path.mkdir(parents=True, exist_ok=True)
+        return base_path
+
 
 
 @dataclass
@@ -159,13 +167,29 @@ class NonlinearExploration:
 
 @dataclass
 class ThreeDimExploration:
-    stomatal_ratio_min: float = 0.02
-    stomatal_ratio_max: float = 1.00
+    # units of µm
+    stomatal_spacing_min: float = 0.0
+    stomatal_spacing_mean: float = 0.0
+    stomatal_spacing_max: float = 0.0
+    # units of µm
+    mesophyll_thickness_min: float = 0.0
+    mesophyll_thickness_mean: float = 0.0
+    mesophyll_thickness_max: float = 0.0
+    # unit of µm 
+    stomatal_pore_radius: float = 2.0 # typical, bound in range 1-4 µm
 
-    aspect_ratio_min: float   = 0.05
-    aspect_ratio_max: float   = 0.30
-
+    foldername: str = "lateral_scanning"
     delimiter: str = ";"
+
+    def get_base_path(self) -> Path:
+        base_path = paths.get_base_path(ensure=True) / self.foldername
+        base_path.mkdir(parents=True, exist_ok=True)
+        return base_path
+    
+    def get_mesh_path(self) -> Path:
+        mesh_path = paths.get_base_path(ensure=True) / "meshes"
+        mesh_path.mkdir(parents=True, exist_ok=True)
+        return mesh_path
 
 
 
