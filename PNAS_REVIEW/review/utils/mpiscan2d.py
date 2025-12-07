@@ -6,6 +6,7 @@ Module to scan over temporal variation in atmospheric concentration Ca using MPI
 
 from mpi4py import MPI
 import numpy as np
+from typing import Any, cast
 import time
 
 """
@@ -21,7 +22,7 @@ def parallelize(system, comm: MPI.Intracomm) -> None:
     # initialize MPI communicator info
     rank = comm.Get_rank()
     size = comm.Get_size()
-    # start timing on rank 0 
+    # start timing on rank 0
     if rank == 0:
         start_time = time.time()
 
@@ -45,6 +46,7 @@ def parallelize(system, comm: MPI.Intracomm) -> None:
 
     # gather results on rank 0
     gathered_results = comm.gather(local_results, root=0)
+    gathered_results = cast(list[Any], gathered_results)
 
     if rank == 0:
         flat_results = np.empty(N_total, dtype=float)
@@ -54,4 +56,4 @@ def parallelize(system, comm: MPI.Intracomm) -> None:
         results = flat_results.reshape((n1, n2))
         system.save_results(results)
         end_time = time.time()
-        print(f"2D scanning completed in {(end_time - start_time):.2f} seconds")
+        print(f"2D scanning completed in {(end_time - start_time):.2f} seconds")  # type: ignore
