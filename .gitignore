@@ -1,4 +1,4 @@
 .vscode/
-# Ignore all files in the PNAS_REVIEW/files directory except /plots/
-PNAS_REVIEW/files/
-!PNAS_REVIEW/files/plots/
+# include PNAS_REVIEW/files/plots/* but not anything else from PNAS_REVIEW/files/
+PNAS_REVIEW/files/*
+!PNAS_REVIEW/files/plots/*
