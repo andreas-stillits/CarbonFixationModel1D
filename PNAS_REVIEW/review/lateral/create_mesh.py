@@ -66,18 +66,21 @@ def main(argv: list[str] | None = None) -> int:
     MINIMUM_RESOLUTION = constants.get_stomatal_radius(args.version) / 4.0
     MAXIMUM_RESOLUTION = constants.get_plug_radius(args.version) / 4.0
     MINIMUM_DISTANCE = constants.get_stomatal_radius(args.version) * 4.0
-    MAXIMUM_DISTANCE = 0.5  # halfway to top
-    inlet_distance = gmsh.model.mesh.field.add("Distance")
-    gmsh.model.mesh.field.setNumbers(inlet_distance, "FacesList", [3])  # bottom surface
-    inlet_threshold = gmsh.model.mesh.field.add("Threshold")
-    gmsh.model.mesh.field.setNumber(inlet_threshold, "IField", inlet_distance)
-    gmsh.model.mesh.field.setNumber(inlet_threshold, "LcMin", MINIMUM_RESOLUTION)
-    gmsh.model.mesh.field.setNumber(inlet_threshold, "LcMax", MAXIMUM_RESOLUTION)
-    gmsh.model.mesh.field.setNumber(inlet_threshold, "DistMin", MINIMUM_DISTANCE)
-    gmsh.model.mesh.field.setNumber(inlet_threshold, "DistMax", MAXIMUM_DISTANCE)
-    #
-    gmsh.model.mesh.field.setAsBackgroundMesh(inlet_threshold)
+    MAXIMUM_DISTANCE = 0.2
 
+    point_tag = kernel.addPoint(0, 0, 0, 1.0)  # tag = 11
+    kernel.synchronize()
+
+    field = gmsh.model.mesh.field
+    distance_field = field.add("Distance")
+    field.setNumbers(distance_field, "NodesList", [point_tag])
+    threshold_field = field.add("Threshold")
+    field.setNumber(threshold_field, "InField", distance_field)
+    field.setNumber(threshold_field, "LcMin", MINIMUM_RESOLUTION)
+    field.setNumber(threshold_field, "LcMax", MAXIMUM_RESOLUTION)
+    field.setNumber(threshold_field, "DistMin", MINIMUM_DISTANCE)
+    field.setNumber(threshold_field, "DistMax", MAXIMUM_DISTANCE)
+    field.setAsBackgroundMesh(threshold_field)
     kernel.synchronize()
     gmsh.model.mesh.generate(3)
     gmsh.write(str(filename))
