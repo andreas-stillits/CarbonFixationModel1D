@@ -4,25 +4,43 @@ Module for creating 3D mesh for lateral diffusion problem.
 
 """
 
+import argparse
 import numpy as np
-from pathlib import Path
 import gmsh
+from review.utils.constants import ThreeDimExploration
+import review.utils.paths as paths
+
 
 kernel = gmsh.model.occ
 
-ASPECT_RATIO = 0.025
-FILENAME = Path(__file__).parent / "cylinder_min.msh"
-MESH_SIZE = 0.002  # global mesh size, chose [0.002, 0.015, 0.15]
-OPEN_GUI = True
 
+def main(argv: list[str] | None = None) -> int:
+    constants = ThreeDimExploration()
+    parser = argparse.ArgumentParser(
+        description="Create 3D mesh for lateral diffusion problem."
+    )
+    parser.add_argument(
+        "version",
+        type=str,
+        choices=[*constants.allowed],
+        help="Version of the temporal exploration constants to use.",
+    )
+    parser.add_argument(
+        "--no-gui",
+        action="store_true",
+        help="Do not open the Gmsh GUI after mesh generation.",
+    )
+    args = parser.parse_args(argv)
+    filename = (
+        paths.get_base_path(ensure=True) / "meshes" / f"cylinder_{args.version}.msh"
+    )
 
-def main():
     gmsh.initialize()
     gmsh.model.add("cylinder")
     # cylinder parameters
     bottom_surface = (0, 0, 0)
     axis = (0, 0, 1)
-    radius = ASPECT_RATIO
+    radius = constants.get_plug_radius(args.version)
     kernel.addCylinder(*bottom_surface, *axis, radius)
     kernel.synchronize()
     # assign physical groups
@@ -43,14 +61,28 @@ def main():
         else:
             # curved surface
             gmsh.model.addPhysicalGroup(2, [tag], 4, name="curved_surface")
-    # mesh options - set mesh size globally
-    gmsh.option.setNumber("Mesh.CharacteristicLengthMin", MESH_SIZE)
-    gmsh.option.setNumber("Mesh.CharacteristicLengthMax", MESH_SIZE)
+    # meshing details
+    # mesh size fields
+    MINIMUM_RESOLUTION = constants.get_stomatal_radius(args.version) / 4.0
+    MAXIMUM_RESOLUTION = constants.get_plug_radius(args.version) / 4.0
+    MINIMUM_DISTANCE = constants.get_stomatal_radius(args.version) * 4.0
+    MAXIMUM_DISTANCE = 0.5  # halfway to top
+    inlet_distance = gmsh.model.mesh.field.add("Distance")
+    gmsh.model.mesh.field.setNumbers(inlet_distance, "FacesList", [3])  # bottom surface
+    inlet_threshold = gmsh.model.mesh.field.add("Threshold")
+    gmsh.model.mesh.field.setNumber(inlet_threshold, "IField", inlet_distance)
+    gmsh.model.mesh.field.setNumber(inlet_threshold, "LcMin", MINIMUM_RESOLUTION)
+    gmsh.model.mesh.field.setNumber(inlet_threshold, "LcMax", MAXIMUM_RESOLUTION)
+    gmsh.model.mesh.field.setNumber(inlet_threshold, "DistMin", MINIMUM_DISTANCE)
+    gmsh.model.mesh.field.setNumber(inlet_threshold, "DistMax", MAXIMUM_DISTANCE)
+    #
+    gmsh.model.mesh.field.setAsBackgroundMesh(inlet_threshold)
+
     kernel.synchronize()
     gmsh.model.mesh.generate(3)
-    gmsh.write(str(FILENAME))
+    gmsh.write(str(filename))
     # open gui
-    if OPEN_GUI:
+    if not args.no_gui:
         gmsh.fltk.run()
     gmsh.finalize()
 

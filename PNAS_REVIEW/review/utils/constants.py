@@ -171,15 +171,16 @@ class ThreeDimExploration:
     stomatal_spacing_min: float = 19.88
     stomatal_spacing_mean: float = 36.32
     stomatal_spacing_max: float = 167.32
-    # units of µm
+    #
     mesophyll_thickness_min: float = 20.60
     mesophyll_thickness_mean: float = 238.75
     mesophyll_thickness_max: float = 809.00
-    # unit of µm
+    #
     stomatal_pore_radius: float = (
         4.0  # typical, bound in range 2-6 µm (when normalizing to a circle)
     )
     allowed = ("low", "typical", "high")
+
     # rescaled quantities
     factor = 2.0
     plug_radius_typical: float = stomatal_spacing_mean / mesophyll_thickness_mean
@@ -190,7 +191,7 @@ class ThreeDimExploration:
     stomatal_radius_low: float = stomatal_radius_typical / factor
     stomatal_radius_high: float = stomatal_radius_typical * factor
 
-    stomatal_epsilon: float = 0.00015
+    stomatal_epsilon: float = 0.002
     foldername: str = "lateral_scanning"
     delimiter: str = ";"
 
