@@ -24,7 +24,7 @@ def main(argv: list[str] | None = None) -> int:
     # parse case and version
     parser = ArgumentParser(description="Process 3D lateral solutions.")
     parser.add_argument(
-        "version", choices=["min", "mean", "max"], help="Version to process"
+        "version", choices=["min", "mean", "mean2", "max"], help="Version to process"
     )
     parser.add_argument(
         "case", choices=["A", "B", "C", "D", "E"], help="Case to process"
@@ -100,9 +100,6 @@ def main(argv: list[str] | None = None) -> int:
         header="A_n_3D A_n_1D rel_diff",
         delimiter=";",
     )
-
-    print(f"{fem.assemble_scalar(fem.form(chi * dx)) / np.sum(V_solids):.2f}")
-    print(f"{np.sum(V_solids):.3f}")
 
     return 0
 

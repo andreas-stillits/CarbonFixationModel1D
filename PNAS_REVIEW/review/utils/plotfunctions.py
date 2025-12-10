@@ -12,6 +12,7 @@ from dolfinx.plot import vtk_mesh
 import adios4dolfinx as a4x
 from mpi4py import MPI
 from dolfinx import fem
+import gmsh
 from pathlib import Path
 from review.utils.constants import TemporalExploration, Cases
 from review.steady.solver import SteadySolver
@@ -250,7 +251,20 @@ def plot_3d_solution(filename: str) -> None:
         x=(xmin + xmax) / 2, y=(ymin + ymax) / 2, z=(zmin + zmax) / 2
     )
     p = pv.Plotter(notebook=True)
-    p.add_mesh(slices, scalars="uh", cmap="viridis", clim=[0.95, 1.05])
+    p.add_mesh(slices, scalars="uh", cmap="viridis", clim=[0.0, 1.05])
     p.add_mesh(grid.outline(), color="k")
     p.show_axes()
     p.show()
+
+
+def show_mesh(filename: str) -> None:
+    path = Path(filename)
+    if path.suffix == ".msh" and path.is_file():
+        gmsh.initialize()
+        gmsh.option.setNumber("General.Terminal", 0)
+        gmsh.model.add("mesh from file")
+        gmsh.merge(filename)
+        gmsh.fltk.run()
+        gmsh.finalize()
+    else:
+        raise FileNotFoundError(f"Mesh file {filename} not found.")

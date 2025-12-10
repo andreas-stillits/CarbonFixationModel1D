@@ -179,48 +179,52 @@ class ThreeDimExploration:
     stomatal_pore_radius: float = (
         4.0  # typical, bound in range 2-6 µm (when normalizing to a circle)
     )
+    allowed = ("low", "typical", "high")
     # rescaled quantities
-    aspect_min: float = stomatal_spacing_min / mesophyll_thickness_max
-    aspect_mean: float = stomatal_spacing_mean / mesophyll_thickness_mean
-    aspect_max: float = stomatal_spacing_max / mesophyll_thickness_min
+    factor = 2.0
+    plug_radius_typical: float = stomatal_spacing_mean / mesophyll_thickness_mean
+    plug_radius_low: float = plug_radius_typical / factor
+    plug_radius_high: float = plug_radius_typical * factor
 
-    stomatal_radius_min: float = stomatal_pore_radius / mesophyll_thickness_max
-    stomatal_radius_mean: float = stomatal_pore_radius / mesophyll_thickness_mean
-    stomatal_radius_max: float = stomatal_pore_radius / mesophyll_thickness_min
+    stomatal_radius_typical: float = stomatal_pore_radius / mesophyll_thickness_mean
+    stomatal_radius_low: float = stomatal_radius_typical / factor
+    stomatal_radius_high: float = stomatal_radius_typical * factor
 
-    stomatal_epsilon: float = 0.0002
+    stomatal_epsilon: float = 0.00015
     foldername: str = "lateral_scanning"
     delimiter: str = ";"
 
     def get_base_path(self, version: str) -> Path:
-        assert version in ("min", "mean", "max"), f"Unknown version: {version}"
+        assert version in self.allowed, f"Unknown version: {version}"
         base_path = paths.get_base_path(ensure=True) / self.foldername / version
         base_path.mkdir(parents=True, exist_ok=True)
         return base_path
 
     def get_mesh_path(self, version: str) -> Path:
-        assert version in ("min", "mean", "max"), f"Unknown version: {version}"
-        mesh_path = (
-            paths.get_base_path(ensure=True) / "meshes" / f"cylinder_{version}.msh"
-        )
-        return mesh_path
+        if version in self.allowed:
+            mesh_path = (
+                paths.get_base_path(ensure=True) / "meshes" / f"cylinder_{version}.msh"
+            )
+            return mesh_path
+        else:
+            raise ValueError(f"Unknown version: {version}")
 
-    def get_aspect_ratio(self, version: str) -> float:
-        if version == "min":
-            return self.aspect_min
-        elif version == "mean":
-            return self.aspect_mean
-        elif version == "max":
-            return self.aspect_max
+    def get_plug_radius(self, version: str) -> float:
+        if version == "low":
+            return self.plug_radius_low
+        elif version == "typical":
+            return self.plug_radius_typical
+        elif version == "high":
+            return self.plug_radius_high
         else:
             raise ValueError(f"Unknown version: {version}")
 
     def get_stomatal_radius(self, version: str) -> float:
-        if version == "min":
-            return self.stomatal_radius_min
-        elif version == "mean":
-            return self.stomatal_radius_mean
-        elif version == "max":
-            return self.stomatal_radius_max
+        if version == "low":
+            return self.stomatal_radius_low
+        elif version == "typical":
+            return self.stomatal_radius_typical
+        elif version == "high":
+            return self.stomatal_radius_high
         else:
             raise ValueError(f"Unknown version: {version}")
