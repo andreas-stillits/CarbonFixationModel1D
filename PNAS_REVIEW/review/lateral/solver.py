@@ -12,7 +12,9 @@ import ufl
 from dolfinx import fem, default_scalar_type
 from dolfinx.fem.petsc import LinearProblem
 from dolfinx.io import gmshio
-from review.utils.constants import ThreeDimExploration, Cases
+import gmsh
+
+_original_initialize = gmsh.initialize
 
 TOLERANCE = 1e-6
 DEFAULT_QDEGREE = 8
@@ -45,6 +47,13 @@ def get_kappa(
     return kappa
 
 
+def quiet_initialize(*args, **kwargs) -> None:
+    """Initialize gmsh without printing to stdout."""
+    _original_initialize(*args, **kwargs)
+    gmsh.option.setNumber("General.Terminal", 0)
+    gmsh.option.setNumber("General.Verbosity", 0)
+
+
 class Steady3DSolver:
     def __init__(
         self,
@@ -57,6 +66,7 @@ class Steady3DSolver:
         order: int = 1,
         rho: tuple[float, float, float] = (1.0, 1.0, 0.6),
         extract_profile: bool = True,
+        save_solution: bool = True,
     ) -> None:
         self.tau = params[0]
         self.gamma = params[1]
@@ -69,8 +79,12 @@ class Steady3DSolver:
         self.order = order
         self.rho = rho
         self.extract_profile = extract_profile
+        self.save_solution = save_solution
 
     def solve(self) -> None:
+
+        # read in silently - a little hacky but works
+        gmsh.initialize = quiet_initialize  # We overrite the gmsh.initialize call in gmshio and patch it with a silence call
         mesh, cell_tags, facet_tags = gmshio.read_from_msh(
             self.mesh_file, MPI.COMM_SELF, 0, gdim=3
         )
@@ -115,10 +129,13 @@ class Steady3DSolver:
         )
         chi_h = problem.solve()
         # save solution
-        a4x.write_mesh(self.filename, mesh)
-        a4x.write_meshtags(self.filename, mesh, cell_tags, meshtag_name="cell_tags")
-        a4x.write_meshtags(self.filename, mesh, facet_tags, meshtag_name="facet_tags")
-        a4x.write_function(self.filename, chi_h, name="solution")
+        if self.save_solution:
+            a4x.write_mesh(self.filename, mesh)
+            a4x.write_meshtags(self.filename, mesh, cell_tags, meshtag_name="cell_tags")
+            a4x.write_meshtags(
+                self.filename, mesh, facet_tags, meshtag_name="facet_tags"
+            )
+            a4x.write_function(self.filename, chi_h, name="solution")
         #
         plug_area = np.pi * self.plug_radius**2
         an3d = (

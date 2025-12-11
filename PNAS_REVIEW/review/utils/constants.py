@@ -168,9 +168,13 @@ class NonlinearExploration:
 @dataclass
 class ThreeDimExploration:
     # units of µm
-    stomatal_spacing_min: float = 19.88
-    stomatal_spacing_mean: float = 36.32
-    stomatal_spacing_max: float = 167.32
+    stomatal_spacing_low: float = (
+        19.88  # min in Liu et al. (2018) (2.5 percentile = 22.42)
+    )
+    stomatal_spacing_mean: float = 36.32  # mean µ
+    stomatal_spacing_high: float = (
+        58.86  # 97.5 percentile (max in Liu et al. is 167.32)
+    )
     #
     mesophyll_thickness_min: float = 20.60
     mesophyll_thickness_mean: float = 238.75
@@ -182,18 +186,45 @@ class ThreeDimExploration:
     allowed = ("low", "typical", "high")
 
     # rescaled quantities
-    factor = 2.0
     plug_radius_typical: float = stomatal_spacing_mean / mesophyll_thickness_mean
-    plug_radius_low: float = plug_radius_typical / factor
-    plug_radius_high: float = plug_radius_typical * factor
+    plug_radius_low: float = stomatal_spacing_low / mesophyll_thickness_mean
+    plug_radius_high: float = stomatal_spacing_high / mesophyll_thickness_mean
 
     stomatal_radius_typical: float = stomatal_pore_radius / mesophyll_thickness_mean
-    stomatal_radius_low: float = stomatal_radius_typical / factor
-    stomatal_radius_high: float = stomatal_radius_typical * factor
+    stomatal_radius_low: float = stomatal_radius_typical
+    stomatal_radius_high: float = stomatal_radius_typical
 
     stomatal_epsilon: float = 0.002
     foldername: str = "lateral_scanning"
     delimiter: str = ";"
+
+    # Reproduce figure 3C parameters
+    n_rho: int = 2
+
+    tau_min: float = 0.01
+    tau_max: float = 100.0
+    n_tau: int = 10
+
+    gamma_min: float = 0.01
+    gamma_max: float = 100.0
+    n_gamma: int = 10
+
+    chi_: float = 0.1
+
+    def get_rho_kappa_range(self, rhomax: float) -> np.ndarray:
+        return np.linspace(rhomax, 1.0, self.n_rho)
+
+    def get_rho_delta_range(self, rhomax: float) -> np.ndarray:
+        return np.linspace(rhomax, 1.0, self.n_rho)
+
+    def get_rho_lambda_range(self, rhomax: float) -> np.ndarray:
+        return np.linspace(rhomax, 1.0 - rhomax, self.n_rho)
+
+    def get_tau_range(self) -> np.ndarray:
+        return _get_log_range(self.tau_min, self.tau_max, self.n_tau)
+
+    def get_gamma_range(self) -> np.ndarray:
+        return _get_log_range(self.gamma_min, self.gamma_max, self.n_gamma)
 
     def get_base_path(self, version: str) -> Path:
         assert version in self.allowed, f"Unknown version: {version}"

@@ -5,7 +5,7 @@
 SCRIPT="review.lateral.comparison"
 CMD=(python -m "$SCRIPT")
 
-for version in min mean mean2 max; do 
+for version in low typical high; do 
     for case in A B C D E; do 
         echo "Running: ${CMD[*]} $version $case"
         "${CMD[@]}" "$version" "$case"

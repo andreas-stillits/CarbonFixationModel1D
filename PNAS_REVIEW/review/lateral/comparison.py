@@ -7,98 +7,78 @@ Summarize as relative difference between assimilation rate predictions
 """
 
 from argparse import ArgumentParser
+from pathlib import Path
 from review.utils.constants import ThreeDimExploration, Cases
 from review.utils.homogeneous import homogeneous_solution
-from mpi4py import MPI
-import adios4dolfinx as a4x
-from dolfinx import fem
-import ufl
+from review.lateral.solver import Steady3DSolver
 import numpy as np
 
-TOLERANCE = 1e-6
-DEFAULT_QDEGREE = 8
-DEFAULT_RESOLUTION = 25
+
+def perform_dimensional_comparison(
+    params: tuple[float, float, float],
+    plug_radius: float,
+    stomatal_radius: float,
+    mesh_file: str | Path,
+    stomatal_blur: float = 0.002,
+    filename_3d: str | Path = "../files/3d/steady3d.bp",
+    filename_profile: str | Path = "../files/3d/steady3d_profile.txt",
+    filename_summary: str | Path = "../files/3d/steady3d_summary.txt",
+    rho: tuple[float, float, float] = (1.0, 1.0, 0.6),
+) -> tuple[float, np.ndarray]:
+    solver = Steady3DSolver(
+        params=params,
+        plug_radius=plug_radius,
+        stomatal_radius=stomatal_radius,
+        mesh_file=mesh_file,
+        stomatal_blur=stomatal_blur,
+        filename=filename_3d,
+        rho=rho,
+        extract_profile=True,
+        save_solution=True,
+    )
+    an3d, z, chi_mean, chi_std = solver.solve()
+    profile = np.vstack((z, chi_mean, chi_std)).T
+    an1d = params[1] * (1 - homogeneous_solution(0, params))
+    assert an3d > 0.0, "3D assimilation rate should be positive"
+    relative_difference = abs(an1d - an3d) / abs(an3d)
+    # save data
+    np.savetxt(filename_profile, profile, header="z; chi_mean; chi_std", delimiter=";")
+    np.savetxt(
+        filename_summary,
+        np.array([an3d, an1d, relative_difference]),
+        header="an3d; an1d; rel_diff",
+        delimiter=";",
+    )
+    return relative_difference, profile
 
 
 def main(argv: list[str] | None = None) -> int:
-    # parse case and version
-    parser = ArgumentParser(description="Process 3D lateral solutions.")
-    parser.add_argument(
-        "version", choices=["min", "mean", "mean2", "max"], help="Version to process"
+
+    parser = ArgumentParser(
+        description="Compare 3D lateral solver against 1D homogeneous solution."
     )
-    parser.add_argument(
-        "case", choices=["A", "B", "C", "D", "E"], help="Case to process"
-    )
-    parser.add_argument(
-        "--resolution",
-        type=int,
-        default=DEFAULT_RESOLUTION,
-        help="Number of bins along z-axis",
-    )
+    parser.add_argument("version", choices=["low", "typical", "high"])
+    parser.add_argument("case", choices=["A", "B", "C", "D", "E"])
     args = parser.parse_args(argv)
 
-    # setup
     cases = Cases()
     constants = ThreeDimExploration()
-    fileroot = str(constants.get_base_path(args.version) / f"solution{args.case}")
 
-    # load in solution
-    mesh = a4x.read_mesh(fileroot + ".bp", MPI.COMM_WORLD)
-    cell_tags = a4x.read_meshtags(fileroot + ".bp", mesh, meshtag_name="cell_tags")
-    facet_tags = a4x.read_meshtags(fileroot + ".bp", mesh, meshtag_name="facet_tags")
+    fileroot = constants.get_base_path(args.version)
+    filename_3d = fileroot / f"solution{args.case}.bp"
+    filename_profile = fileroot / f"solution{args.case}_profile.txt"
+    filename_summary = fileroot / f"solution{args.case}_summary.txt"
 
-    dx = ufl.Measure(
-        "dx",
-        domain=mesh,
-        subdomain_data=cell_tags,
-        metadata={"quadrature_degree": DEFAULT_QDEGREE},
-    )
-    functionspace = fem.functionspace(mesh, ("Lagrange", 1))
-    chi = fem.Function(functionspace)
-    a4x.read_function(fileroot + ".bp", chi, name="solution")
-
-    # extract z profile of mean and variance
-    zmin, zmax = mesh.geometry.x[:, 2].min(), mesh.geometry.x[:, 2].max()
-    dz = (zmax - zmin) / args.resolution
-    edges = np.arange(zmin, zmax + TOLERANCE, dz)
-    centers = (edges[:-1] + edges[1:]) / 2
-
-    z = ufl.SpatialCoordinate(mesh)[2]
-
-    def get_slice_quantities(a, b):
-        inside = ufl.conditional(ufl.And(ufl.ge(z, a), ufl.lt(z, b)), 1.0, 0.0)
-        V_solid = fem.assemble_scalar(fem.form(inside * dx))
-        U_int = fem.assemble_scalar(fem.form(chi * inside * dx))
-        U2_int = fem.assemble_scalar(fem.form(chi**2 * inside * dx))
-        u_avg = U_int / V_solid if V_solid > 0 else np.nan
-        u2_avg = U2_int / V_solid if V_solid > 0 else np.nan
-        return V_solid, u_avg, u2_avg
-
-    quantities = np.vstack(
-        [list(get_slice_quantities(a, b)) for a, b in zip(edges[:-1], edges[1:])]
-    )
-
-    V_solids = quantities[:, 0]
-    u_means = quantities[:, 1]
-    u2_means = quantities[:, 2]
-    u_std = np.sqrt(u2_means - u_means**2)
-
-    # save data
-    data = np.vstack([centers, V_solids, u_means, u_std]).T
-    np.savetxt(fileroot + ".txt", data, header="z V_solid u_mean u_std", delimiter=";")
-
-    # save an3d, an1d and relative difference
-    tau, gamma, chi_ = cases.get_case_params(args.case)
-    an3d = fem.assemble_scalar(fem.form(tau**2 * (chi - chi_) * dx)) / (
-        np.mean(V_solids) / dz
-    )
-    an1d = gamma * (1 - homogeneous_solution(0, (tau, gamma, chi_)))
-    rel_diff = (an1d - an3d) / an3d
-    np.savetxt(
-        fileroot + "_summary.txt",
-        np.array([[an3d, an1d, rel_diff]]),
-        header="A_n_3D A_n_1D rel_diff",
-        delimiter=";",
+    _ = perform_dimensional_comparison(
+        cases.get_case_params(args.case),
+        constants.get_plug_radius(args.version),
+        constants.get_stomatal_radius(args.version),
+        constants.get_mesh_path(args.version),
+        stomatal_blur=constants.stomatal_epsilon,
+        filename_3d=filename_3d,
+        filename_profile=filename_profile,
+        filename_summary=filename_summary,
+        rho=(1.0, 1.0, 0.6),
     )
 
     return 0

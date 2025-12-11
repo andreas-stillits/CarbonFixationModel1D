@@ -65,7 +65,7 @@ def main(argv: list[str] | None = None) -> int:
     # mesh size fields
     MINIMUM_RESOLUTION = constants.get_stomatal_radius(args.version) / 4.0
     MAXIMUM_RESOLUTION = constants.get_plug_radius(args.version) / 4.0
-    MINIMUM_DISTANCE = constants.get_stomatal_radius(args.version) * 4.0
+    MINIMUM_DISTANCE = constants.get_stomatal_radius(args.version) * 3.0
     MAXIMUM_DISTANCE = 0.2
 
     point_tag = kernel.addPoint(0, 0, 0, 1.0)  # tag = 11
