@@ -22,7 +22,7 @@ DEFAULT_RESOLUTION = 50
 
 
 def get_delta(
-    x: ufl.SpatialCoordinate, rho: tuple[float, float, float], epsilon: float = 0.01
+    x: ufl.SpatialCoordinate, rho: tuple[float, float, float], epsilon: float = 0.1
 ):
     rho_delta, rho_kappa, rho_lambda = rho
     maximum = 1 / ((1 - rho_lambda) + rho_lambda * rho_delta)
@@ -35,7 +35,7 @@ def get_delta(
 
 
 def get_kappa(
-    x: ufl.SpatialCoordinate, rho: tuple[float, float, float], epsilon: float = 0.01
+    x: ufl.SpatialCoordinate, rho: tuple[float, float, float], epsilon: float = 0.1
 ):
     rho_delta, rho_kappa, rho_lambda = rho
     maximum = 1 / ((1 - rho_lambda) * rho_kappa + rho_lambda)
@@ -113,8 +113,8 @@ class Steady3DSolver:
             * (1 - ufl.tanh(phi / self.stomatal_blur / self.plug_radius**2))
         )
         #
-        delta = get_delta(x, self.rho, epsilon=0.01)
-        kappa = get_kappa(x, self.rho, epsilon=0.01)
+        delta = get_delta(x, self.rho, epsilon=0.1)
+        kappa = get_kappa(x, self.rho, epsilon=0.1)
         # Weak form
         a = (
             delta * ufl.inner(ufl.grad(chi), ufl.grad(v)) * dx(AIRSPACE_TAG)
