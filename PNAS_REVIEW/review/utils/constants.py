@@ -42,11 +42,11 @@ class Cases:
 class TemporalExploration:
     amp_min: float = 0.01
     amp_max: float = 0.5
-    n_amp: int = 7
+    n_amp: int = 5
 
-    period_min: float = 0.02
-    period_max: float = 20.0
-    n_period: int = 9
+    period_min: float = 0.01
+    period_max: float = 100.0
+    n_period: int = 3
 
     periods_to_run: int = 15
     periods_to_cut: int = 10

@@ -119,7 +119,10 @@ def plot_temporal_scan(
         f"files/temporal_scanning/rhomax_{rhomax:.1f}_/{quantity}/variations_{case}.txt"
     )
     data = np.loadtxt(filename, delimiter=c.delimiter)
-    periods, amplitudes = c.get_period_range(), c.get_amplitude_range()
+    n_period, n_amp = data.shape
+    periods = np.exp(np.linspace(np.log(c.period_min), np.log(c.period_max), n_period))
+    amplitudes = np.linspace(c.amp_min, c.amp_max, n_amp)
+
     if ax is None:
         fig, ax = plt.subplots(figsize=(8, 6))
     cmap, norm = get_blue_cmap((0, 0.26, 16))
