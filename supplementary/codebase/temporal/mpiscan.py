@@ -8,6 +8,7 @@ from codebase.temporal.solver import TemporalSolver
 from codebase.utils.constants import TemporalExploration, Cases
 from codebase.utils.profiles import OscillatorProfile
 from codebase.utils.mpiscan2d import parallelize
+from codebase.utils import paths
 from mpi4py import MPI
 import numpy as np
 from argparse import ArgumentParser
@@ -21,7 +22,13 @@ class System:
         self.params = Cases().get_case_params(case)
         self.case = case
         self.quantity = quantity
-        self.base_path = constants.get_base_path(case, quantity)
+        self.base_path = (
+            paths.get_base_path()
+            / "temporal_scanning"
+            / f"rhomax_{constants.rho[0]:.1f}_"
+            / f"{quantity}"
+        )
+        self.base_path.mkdir(parents=True, exist_ok=True)
 
     def get_scan_arrays(self) -> tuple[np.ndarray, np.ndarray]:
         period_range = self.constants.get_period_range()
@@ -97,10 +104,11 @@ class System:
 
     def save_results(self, results: np.ndarray) -> None:
         filename = self.base_path / f"variations_{self.case}.txt"
-        np.savetxt(filename, results, delimiter=self.constants.delimiter)
+        np.savetxt(filename, results, delimiter=";")
 
 
 def main(argv: list[str] | None = None) -> int:
+    constants = TemporalExploration()
     parser = ArgumentParser(
         description="MPI scan over nonlinear parameters for figure 3C"
     )
@@ -119,6 +127,12 @@ def main(argv: list[str] | None = None) -> int:
         default=0.0,
         help="maximum rho value for delta/kappa profiles. If not given program will run with defaults from review.utils.constants.TemporalExploration and write to /tmp/",
     )
+    parser.add_argument(
+        "--resolution",
+        type=int,
+        default=constants.n_period,
+        help="number of points in each dimension (period, amplitude)",
+    )
     args = parser.parse_args(argv)
     #
     comm = MPI.COMM_WORLD
@@ -129,11 +143,11 @@ def main(argv: list[str] | None = None) -> int:
             f"Running with {size} rank(s) and ({args.quantity},{args.case}) for temporal exploration",
             flush=True,
         )
-    constants = TemporalExploration()
     if args.rhomax > 0.0:
         rho = constants.rho
         constants.rho = (args.rhomax, args.rhomax, rho[2])
-        constants.foldername = f"temporal_scanning/rhomax_{args.rhomax:.1f}_/"
+    constants.n_amp = args.resolution
+    constants.n_period = args.resolution
     parallelize(System(constants, args.case, args.quantity), comm)
 
     return 0

@@ -56,10 +56,6 @@ class TemporalExploration:
     epsilon: float = 0.02
     rho: tuple[float, float, float] = (0.5, 0.5, 0.6)
 
-    delimiter: str = ";"
-
-    foldername: str = "temporal_scanning/tmp/"
-
     def get_amplitude_range(self) -> np.ndarray:
         return np.linspace(self.amp_min, self.amp_max, self.n_amp)
 
@@ -79,11 +75,6 @@ class TemporalExploration:
         step.populate_rho(self.rho[1], self.rho[2])
         return step.generalize()(x, t)
 
-    def get_base_path(self, case: str, quantity: str) -> Path:
-        base_path = paths.get_base_path(ensure=True) / self.foldername / quantity
-        base_path.mkdir(parents=True, exist_ok=True)
-        return base_path
-
 
 @dataclass
 class ReproduceWithExponentials:
@@ -101,11 +92,6 @@ class ReproduceWithExponentials:
 
     chi_: float = 0.1
 
-    delimiter: str = ";"
-
-    foldername: str = "exponential_sensitivities"
-    filename: str = "sensitivities.txt"
-
     def get_beta_range(self) -> np.ndarray:
         return np.linspace(self.beta_min, self.beta_max, self.n_beta)
 
@@ -114,11 +100,6 @@ class ReproduceWithExponentials:
 
     def get_gamma_range(self) -> np.ndarray:
         return _get_log_range(self.gamma_min, self.gamma_max, self.n_gamma)
-
-    def get_base_path(self) -> Path:
-        base_path = paths.get_base_path(ensure=True) / self.foldername
-        base_path.mkdir(parents=True, exist_ok=True)
-        return base_path
 
 
 @dataclass
@@ -138,9 +119,6 @@ class NonlinearExploration:
 
     chi_: float = 0.1
 
-    delimiter: str = ";"
-    foldername: str = "nonlinear_sensitivities"
-
     def get_rho_kappa_range(self) -> np.ndarray:
         return np.linspace(self.rho_kappa_min, 1.0, self.n_rho)
 
@@ -155,14 +133,6 @@ class NonlinearExploration:
 
     def get_gamma_range(self) -> np.ndarray:
         return _get_log_range(self.gamma_min, self.gamma_max, self.n_gamma)
-
-    def get_base_path(self) -> Path:
-        base_path = paths.get_base_path(ensure=True) / self.foldername
-        base_path.mkdir(parents=True, exist_ok=True)
-        return base_path
-
-    def get_filename(self, mu: float) -> str:
-        return f"sensitivities_mu{mu:.2f}_.txt"
 
 
 @dataclass

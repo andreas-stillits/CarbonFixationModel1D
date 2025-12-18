@@ -9,6 +9,7 @@ from codebase.utils.constants import ReproduceWithExponentials
 from codebase.utils.homogeneous import homogeneous_solution
 from codebase.utils.profiles import ExponentialProfile
 from codebase.utils.mpiscan2d import parallelize
+from codebase.utils import paths
 from mpi4py import MPI
 import numpy as np
 
@@ -16,7 +17,8 @@ import numpy as np
 class System:
     def __init__(self, constants: ReproduceWithExponentials) -> None:
         self.constants = constants
-        self.base_path = constants.get_base_path()
+        self.base_path = paths.get_base_path(ensure=True) / "exponential_sensitivities"
+        self.base_path.mkdir(parents=True, exist_ok=True)
 
     def get_scan_arrays(self) -> tuple[np.ndarray, np.ndarray]:
         taus = self.constants.get_tau_range()
@@ -46,8 +48,8 @@ class System:
         return result
 
     def save_results(self, results: np.ndarray) -> None:
-        filename = self.base_path / self.constants.filename
-        np.savetxt(filename, results, delimiter=self.constants.delimiter)
+        filename = self.base_path / "sensitivities.txt"
+        np.savetxt(filename, results, delimiter=";")
 
 
 def main() -> int:

@@ -8,6 +8,7 @@ from codebase.nonlinear.solver import NonlinearSolver
 from codebase.utils.constants import NonlinearExploration
 from codebase.utils.profiles import StepProfile
 from codebase.utils.mpiscan2d import parallelize
+from codebase.utils import paths
 from mpi4py import MPI
 import numpy as np
 from argparse import ArgumentParser
@@ -16,7 +17,8 @@ from argparse import ArgumentParser
 class System:
     def __init__(self, constants: NonlinearExploration, mu: float) -> None:
         self.constants = constants
-        self.base_path = constants.get_base_path()
+        self.base_path = paths.get_base_path() / "nonlinear_sensitivities"
+        self.base_path.mkdir(parents=True, exist_ok=True)
         self.mu = mu
 
     def get_scan_arrays(self) -> tuple[np.ndarray, np.ndarray]:
@@ -60,8 +62,8 @@ class System:
         return result
 
     def save_results(self, results: np.ndarray) -> None:
-        filename = self.base_path / self.constants.get_filename(self.mu)
-        np.savetxt(filename, results, delimiter=self.constants.delimiter)
+        filename = self.base_path / f"sensitivities_mu{self.mu:.2f}.txt"
+        np.savetxt(filename, results, delimiter=";")
 
 
 def main(argv: list[str] | None = None) -> int:
