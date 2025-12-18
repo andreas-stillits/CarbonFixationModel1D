@@ -7,15 +7,19 @@ Scan over (tau, gamma) space to reproduce figure 3C for 3D model
 from codebase.lateral.solver import Steady3DSolver
 from codebase.utils.constants import ThreeDimExploration
 from codebase.utils.mpiscan2d import parallelize
+from codebase.utils import paths
 from mpi4py import MPI
 import numpy as np
 from argparse import ArgumentParser
+
+VERSION = "typical"
 
 
 class System:
     def __init__(self, constants: ThreeDimExploration, rhomax: float) -> None:
         self.constants = constants
-        self.base_path = constants.get_base_path("typical").parent
+        self.base_path = paths.get_base_path() / "lateral_scanning"
+        self.base_path.mkdir(parents=True, exist_ok=True)
         self.rhomax = rhomax
 
     def get_scan_arrays(self) -> tuple[np.ndarray, np.ndarray]:
@@ -30,9 +34,9 @@ class System:
         rho_deltas = c.get_rho_delta_range(self.rhomax)
         rho_lambdas = c.get_rho_lambda_range(self.rhomax)
         #
-        plug_radius = c.get_plug_radius(version="typical")
-        stomatal_radius = c.get_stomatal_radius(version="typical")
-        mesh_file = c.get_mesh_path(version="typical")
+        plug_radius = c.get_plug_radius(version=VERSION)
+        stomatal_radius = c.get_stomatal_radius(version=VERSION)
+        mesh_file = c.get_mesh_path(version=VERSION)
 
         # get homogeneous 3D solution
         solver = Steady3DSolver(
@@ -78,7 +82,7 @@ class System:
         filedir = self.base_path / f"rhomax_{self.rhomax:.1f}_"
         filedir.mkdir(parents=True, exist_ok=True)
         filename = filedir / "3d_sensitivities.txt"
-        np.savetxt(filename, results, delimiter=self.constants.delimiter)
+        np.savetxt(filename, results, delimiter=";")
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -165,8 +165,6 @@ class ThreeDimExploration:
     stomatal_radius_high: float = stomatal_radius_typical
 
     stomatal_epsilon: float = 0.002
-    foldername: str = "lateral_scanning"
-    delimiter: str = ";"
 
     # Reproduce figure 3C parameters
     n_rho: int = 2
@@ -195,12 +193,6 @@ class ThreeDimExploration:
 
     def get_gamma_range(self) -> np.ndarray:
         return _get_log_range(self.gamma_min, self.gamma_max, self.n_gamma)
-
-    def get_base_path(self, version: str) -> Path:
-        assert version in self.allowed, f"Unknown version: {version}"
-        base_path = paths.get_base_path(ensure=True) / self.foldername / version
-        base_path.mkdir(parents=True, exist_ok=True)
-        return base_path
 
     def get_mesh_path(self, version: str) -> Path:
         if version in self.allowed:

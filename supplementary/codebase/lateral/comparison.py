@@ -10,6 +10,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 from codebase.utils.constants import ThreeDimExploration, Cases
 from codebase.utils.homogeneous import homogeneous_solution
+from codebase.utils import paths
 from codebase.lateral.solver import Steady3DSolver
 import numpy as np
 
@@ -64,7 +65,8 @@ def main(argv: list[str] | None = None) -> int:
     cases = Cases()
     constants = ThreeDimExploration()
 
-    fileroot = constants.get_base_path(args.version)
+    fileroot = paths.get_base_path() / "lateral_scanning" / f"{args.version}"
+    fileroot.mkdir(parents=True, exist_ok=True)
     filename_3d = fileroot / f"solution{args.case}.bp"
     filename_profile = fileroot / f"solution{args.case}_profile.txt"
     filename_summary = fileroot / f"solution{args.case}_summary.txt"
@@ -78,7 +80,7 @@ def main(argv: list[str] | None = None) -> int:
         filename_3d=filename_3d,
         filename_profile=filename_profile,
         filename_summary=filename_summary,
-        rho=(1.0, 1.0, 0.6),
+        rho=(1.0, 1.0, 0.6),  # for a homogeneous mesophyll
     )
 
     return 0
