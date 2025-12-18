@@ -1,5 +1,3 @@
 .vscode/
-# include PNAS_REVIEW/files/plots/* but not anything else from PNAS_REVIEW/files/
 **/__pycache__/
-PNAS_REVIEW/files/*
-!PNAS_REVIEW/files/plots/*
+supplementary/files/*
