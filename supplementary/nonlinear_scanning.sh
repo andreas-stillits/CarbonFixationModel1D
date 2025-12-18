@@ -1,7 +1,7 @@
 #!/usr/bin/env bash 
 
 NP=16
-SCRIPT="review.nonlinear.mpiscan"
+SCRIPT="codebase.nonlinear.mpiscan"
 
 CMD=(mpirun -n "$NP" python -m "$SCRIPT")
 

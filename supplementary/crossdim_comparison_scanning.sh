@@ -2,7 +2,7 @@
 
 # If running with sbatch - remember to active the appropriate environment first, e.g. with "conda run -n <env_name>"
 
-SCRIPT="review.lateral.comparison"
+SCRIPT="codebase.lateral.comparison"
 CMD=(python -m "$SCRIPT")
 
 for version in low typical high; do 
