@@ -5,83 +5,119 @@
 
 # NOTE: since estimator.py propagates errors using simulated sampling, small differences may occur in the results when running the same code multiple times.
 
-import numpy as np 
-import numpy.random as r 
+import numpy as np
+import numpy.random as r
 from matplotlib import pyplot as plt
-from tqdm import tqdm # optional library for progress bars in jupyter notebooks
+from tqdm import tqdm  # optional library for progress bars in jupyter notebooks
+
+SEED = 10900
 
 
 def estimate_Ci_values(dataframe, sim_size=10_000, plot_sample=True):
-    '''
+    """
     Estimate Cis from quoted An [µmol/m2/s], gs [mol/m2/s] and Ca [µmol/mol] values, and probagate errors
     dataframe: pandas DataFrame containing An, gs, Ca, and their errors (note that key names must match)
     sim_size: number of simulations to run for error propagation
     plot_sample: if True, plot a histogram of the Ci distribution for a random sample
-    '''
+    """
+    r.seed(SEED)
+    # assert existence of required columns
+    required_columns = [
+        "assimilation_rate",
+        "d_assimilation_rate",
+        "stomatal_conductance",
+        "d_stomatal_conductance",
+        "atmospheric_CO2",
+    ]
+    for col in required_columns:
+        if col not in dataframe.columns:
+            raise ValueError(f"DataFrame must contain column '{col}'")
     # extract data
-    An  = dataframe['assimilation_rate'].to_numpy()
-    dAn = dataframe['d_assimilation_rate'].to_numpy()
-    gs  = dataframe['stomatal_conductance'].to_numpy()
-    dgs = dataframe['d_stomatal_conductance'].to_numpy()
-    Ca  = dataframe['atmospheric_CO2'].to_numpy()
+    An = dataframe["assimilation_rate"].to_numpy()
+    dAn = dataframe["d_assimilation_rate"].to_numpy()
+    gs = dataframe["stomatal_conductance"].to_numpy()
+    dgs = dataframe["d_stomatal_conductance"].to_numpy()
+    Ca = dataframe["atmospheric_CO2"].to_numpy()
     #
     sample_size = len(An)
-    Cis = np.zeros(sample_size) # substomatal CO2 conc.
-    dCis = np.zeros(sample_size) # simulated error in substomatal CO2 conc.
+    Cis = np.zeros(sample_size)  # substomatal CO2 conc.
+    dCis = np.zeros(sample_size)  # simulated error in substomatal CO2 conc.
     #
-    rand = r.randint(0, sample_size) # random integer for picking a random sample to plot if requested (plot_sample=True)
+    rand = r.randint(
+        0, sample_size
+    )  # random integer for picking a random sample to plot if requested (plot_sample=True)
     # loop over samples
     for i in range(sample_size):
-        Ci_dist = np.zeros(sim_size) # container for simulated substomatal CO2 conc. values
+        Ci_dist = np.zeros(
+            sim_size
+        )  # container for simulated substomatal CO2 conc. values
         # loop over simulations
         for j in range(sim_size):
-            Ci_dist[j] = -1 # initialize to -1 to ensure we sample until we get a valid value
-            while Ci_dist[j] <= 100: # below 100 µmol/mol is considered unphysical for the study in question (Momayyezi et al. 2022, Figure 3, Ci values at ambient conditions indicated by dashed vertical grey lines)
+            Ci_dist[j] = (
+                -1
+            )  # initialize to -1 to ensure we sample until we get a valid value
+            while (
+                Ci_dist[j] <= 100
+            ):  # below 100 µmol/mol is considered unphysical for the study in question (Momayyezi et al. 2022, Figure 3, Ci values at ambient conditions indicated by dashed vertical grey lines)
                 An_sim = -1
-                while An_sim <= 0: # ensure we sample a positive assimilation rate
-                    An_sim = r.normal(An[i], dAn[i]) # assume normal distribution
+                while An_sim <= 0:  # ensure we sample a positive assimilation rate
+                    An_sim = r.normal(An[i], dAn[i])  # assume normal distribution
                 gs_sim = -1
-                while gs_sim <= 0: # ensure we sample a positive stomatal conductance
-                    gs_sim = r.normal(gs[i], dgs[i]) # assume normal distribution
+                while gs_sim <= 0:  # ensure we sample a positive stomatal conductance
+                    gs_sim = r.normal(gs[i], dgs[i])  # assume normal distribution
                 # calculate simulated substomatal CO2 conc.
-                Ci_dist[j] = Ca[i] - An_sim/gs_sim 
+                Ci_dist[j] = Ca[i] - An_sim / gs_sim
         # plot sample distribution if requested
         if plot_sample and i == rand:
             plt.hist(Ci_dist, bins=25)
-            plt.title('Distribution of substomatal CO2')
-            plt.xlabel('substomatal CO2 [µmol/mol]')
-            plt.ylabel('Frequency')
+            plt.title("Distribution of substomatal CO2")
+            plt.xlabel("substomatal CO2 [µmol/mol]")
+            plt.ylabel("Frequency")
             plt.show()
         # assign mean as center value and std as error
         Cis[i] = np.median(Ci_dist)
         dCis[i] = np.std(Ci_dist, ddof=1)
     # append to dataframe
-    dataframe.loc[:, 'substomatal_CO2']   = Cis
-    dataframe.loc[:, 'd_substomatal_CO2'] = dCis
+    dataframe.loc[:, "substomatal_CO2"] = Cis
+    dataframe.loc[:, "d_substomatal_CO2"] = dCis
     return dataframe
 
 
-
 def estimate_gm_star_values(dataframe, sim_size=10_000, plot_sample=True):
-    '''
+    """
     Estimate gm_star from An [µmol/m2/s], Cis [µmol/mol] and C_star [µmol/mol] values and probagate errors
-    dataframe: pandas DataFrame containing An, Ci, C*, and their errors 
+    dataframe: pandas DataFrame containing An, Ci, C*, and their errors
     sim_size: number of simulations to run
     plot_sample: if True, plot a histogram of the gm_star distribution for a random sample
-    '''
+    """
+    r.seed(SEED)
+    # assert existence of required columns
+    required_columns = [
+        "assimilation_rate",
+        "d_assimilation_rate",
+        "substomatal_CO2",
+        "d_substomatal_CO2",
+        "compensation_point",
+        "d_compensation_point",
+    ]
+    for col in required_columns:
+        if col not in dataframe.columns:
+            raise ValueError(f"DataFrame must contain column '{col}'")
     # extract data
-    An      = dataframe['assimilation_rate'].to_numpy()
-    dAn     = dataframe['d_assimilation_rate'].to_numpy()
-    Ci      = dataframe['substomatal_CO2'].to_numpy()
-    dCi     = dataframe['d_substomatal_CO2'].to_numpy()
-    C_star  = dataframe['compensation_point'].to_numpy()
-    dC_star = dataframe['d_compensation_point'].to_numpy()
+    An = dataframe["assimilation_rate"].to_numpy()
+    dAn = dataframe["d_assimilation_rate"].to_numpy()
+    Ci = dataframe["substomatal_CO2"].to_numpy()
+    dCi = dataframe["d_substomatal_CO2"].to_numpy()
+    C_star = dataframe["compensation_point"].to_numpy()
+    dC_star = dataframe["d_compensation_point"].to_numpy()
     sample_size = len(An)
     # containers for gm* values denoted in code by gm_
     gm_ = np.zeros(sample_size)
     dgm_ = np.zeros(sample_size)
-    # 
-    rand = r.randint(0, sample_size) # random integer for picking a random sample to plot if requested (plot_sample=True)
+    #
+    rand = r.randint(
+        0, sample_size
+    )  # random integer for picking a random sample to plot if requested (plot_sample=True)
     # loop over samples
     for i in range(sample_size):
         gm_dist = np.zeros(sim_size)
@@ -90,66 +126,77 @@ def estimate_gm_star_values(dataframe, sim_size=10_000, plot_sample=True):
             gm_dist[j] = -1
             while gm_dist[j] < 0:
                 An_sim = -1
-                while An_sim < 0: # ensure we sample a positive assimilation rate
-                    An_sim = r.normal(An[i], dAn[i]) # assume normal distribution
+                while An_sim < 0:  # ensure we sample a positive assimilation rate
+                    An_sim = r.normal(An[i], dAn[i])  # assume normal distribution
                 Cis_sim = -1
-                while Cis_sim < 0: # ensure we sample a positive substomatal CO2 conc.
-                    Cis_sim = r.normal(Ci[i], dCi[i]) # assume normal distribution
+                while Cis_sim < 0:  # ensure we sample a positive substomatal CO2 conc.
+                    Cis_sim = r.normal(Ci[i], dCi[i])  # assume normal distribution
                 C_star_sim = -1
-                while C_star_sim < 0: # ensure we sample a positive CO2 compensation point
-                    C_star_sim = r.normal(C_star[i], dC_star[i]) # assume normal distribution
+                while (
+                    C_star_sim < 0
+                ):  # ensure we sample a positive CO2 compensation point
+                    C_star_sim = r.normal(
+                        C_star[i], dC_star[i]
+                    )  # assume normal distribution
                 # calculate gm*
-                gm_dist[j] = An_sim/(Cis_sim - C_star_sim)
+                gm_dist[j] = An_sim / (Cis_sim - C_star_sim)
         # plot sample distribution if requested
         if plot_sample and i == rand:
             plt.hist(gm_dist, bins=25)
-            plt.title('Distribution of gm_star')
-            plt.xlabel('gm_star [mol/m2/s]')
-            plt.ylabel('Frequency')
+            plt.title("Distribution of gm_star")
+            plt.xlabel("gm_star [mol/m2/s]")
+            plt.ylabel("Frequency")
             plt.show
         # assign mean as center value and std as error
         gm_[i] = np.median(gm_dist)
         dgm_[i] = np.std(gm_dist, ddof=1)
     # append to dataframe
-    dataframe.loc[:,'mesophyll_conductance*']   = gm_ 
-    dataframe.loc[:,'d_mesophyll_conductance*'] = dgm_
+    dataframe.loc[:, "mesophyll_conductance*"] = gm_
+    dataframe.loc[:, "d_mesophyll_conductance*"] = dgm_
     return dataframe
 
 
 # helper function
 def f(gc, gias, gm_):
-    '''
+    """
     Helper function: return the difference between gm* (gm_ in code) and its expression in terms of gc and gias
     Assumes standard units of [mol/m2/s] for all conductances
     gc: integral absorption capacity <K>L or "cellular conductance"
     gias: IAS conductance related to effective IAS diffusivity by gias = 2*D_eff/L
-    gm_: modified mesophyll conductance gm* = An / (Ci - C*)    
-    '''
-    return np.sqrt(np.abs(gc*gias/2))*np.tanh(np.sqrt(np.abs(2*gc/gias))) - gm_
+    gm_: modified mesophyll conductance gm* = An / (Ci - C*)
+    """
+    return (
+        np.sqrt(np.abs(gc * gias / 2)) * np.tanh(np.sqrt(np.abs(2 * gc / gias))) - gm_
+    )
+
 
 # helper function
 def dfdgc(gc, gias, gm_):
-    '''
+    """
     Helper function: return the derivative of function 'f' with respect to gc
     Assumes standard units of [mol/m2/s]
     gc: integral absorption capacity <K>L or "cellular conductance"
     gias: IAS conductance related to effective IAS diffusivity by gias = 2*D_eff/L
-    gm_: modified mesophyll conductance gm* = An / (Ci - C*)    
-    '''
-    return 0.5*(np.sqrt(np.abs(gias/(2*gc)))*np.tanh(np.sqrt(np.abs(2*gc/gias))) + 1/(gias*np.cosh(np.sqrt(np.abs(2*gc/gias)))**2))
+    gm_: modified mesophyll conductance gm* = An / (Ci - C*)
+    """
+    return 0.5 * (
+        np.sqrt(np.abs(gias / (2 * gc))) * np.tanh(np.sqrt(np.abs(2 * gc / gias)))
+        + 1 / (gias * np.cosh(np.sqrt(np.abs(2 * gc / gias))) ** 2)
+    )
+
 
 # helper function
-def newton(gc0, gias, gm_, step_size = 0.4, max_iterations = 1000, tolerance = 1e-6):
-    ''' 
+def newton(gc0, gias, gm_, step_size=0.4, max_iterations=1000, tolerance=1e-6):
+    """
     Helper function: given values of gias and gm* (gm_ in code), determine gc iteratively by Newton's method
     gc is related to gm* and gias by the nonlinear function encoded in 'f = 0'
     gc0: initial guess at integral absorption capacity <K>L or "cellular conductance"
     gias: IAS conductance related to effective IAS diffusivity by gias = 2*D_eff/L
-    gm_: modified mesophyll conductance gm* = An / (Ci - C*)    
+    gm_: modified mesophyll conductance gm* = An / (Ci - C*)
     step_size: parameter determining the speed of convergence
     max_iterations: upper bound on iterations
     tolerance: least precision tolerated for convergence to be declared successful
-    '''
+    """
     gc = gc0
     for i in range(max_iterations):
         f_ = f(gc, gias, gm_)
@@ -158,93 +205,116 @@ def newton(gc0, gias, gm_, step_size = 0.4, max_iterations = 1000, tolerance = 1
         df_ = dfdgc(gc, gias, gm_)
         if df_ == 0:
             break
-        gc = gc - step_size*f_/df_
-    print('maxed out all iterations without convergence')
+        gc = gc - step_size * f_ / df_
+    print("maxed out all iterations without convergence")
 
 
-def estimate_principle_parameters(dataframe, sim_samples = 10_000, plot_sample = True):
-    '''
+def estimate_principle_parameters(dataframe, sim_samples=10_000, plot_sample=True):
+    """
     data_frame: pandas dataframe with columns 'mesophyll_conductance*' (gm*), 'stomatal_conductance' (gs), 'ias_conductance' (gias) as well as their errors
     sim_samples: number of samples to draw from the error distributions
     print_example_distributions: if True, will plot example distributions of gamma and tau
-    '''
+    """
+    r.seed(SEED)
+
+    # assert existence of required columns
+    required_columns = [
+        "mesophyll_conductance*",
+        "d_mesophyll_conductance*",
+        "stomatal_conductance",
+        "d_stomatal_conductance",
+        "ias_conductance",
+        "d_ias_conductance",
+    ]
+    for col in required_columns:
+        if col not in dataframe.columns:
+            raise ValueError(f"DataFrame must contain column '{col}'")
+
     # unpack data
     # gm* in mol/m2/s
-    gm_ = dataframe['mesophyll_conductance*'].to_numpy()
-    dgm_ = dataframe['d_mesophyll_conductance*'].to_numpy() 
+    gm_ = dataframe["mesophyll_conductance*"].to_numpy()
+    dgm_ = dataframe["d_mesophyll_conductance*"].to_numpy()
     # gs in mol/m2/s
-    gs = dataframe['stomatal_conductance'].to_numpy()
-    dgs = dataframe['d_stomatal_conductance'].to_numpy()
+    gs = dataframe["stomatal_conductance"].to_numpy()
+    dgs = dataframe["d_stomatal_conductance"].to_numpy()
     # gias in mol/m2/s
-    gias = dataframe['ias_conductance'].to_numpy()
-    dgias = dataframe['d_ias_conductance'].to_numpy()
-    # 
-    samples = len(gm_) # assume equal for all conductances 
+    gias = dataframe["ias_conductance"].to_numpy()
+    dgias = dataframe["d_ias_conductance"].to_numpy()
     #
-    gammas = np.zeros(samples) # mean
-    dgammas = np.zeros((samples,2)) # 16th and 84th percentiles matching +- 1 sigma for a normal distribution
-    
+    samples = len(gm_)  # assume equal for all conductances
+    #
+    gammas = np.zeros(samples)  # mean
+    dgammas = np.zeros(
+        (samples, 2)
+    )  # 16th and 84th percentiles matching +- 1 sigma for a normal distribution
+
     taus = np.zeros(samples)
-    dtaus = np.zeros((samples,2))
-    
-    random_int = r.randint(0,samples) # integer for picking random instance to plot if requested
+    dtaus = np.zeros((samples, 2))
+
+    random_int = r.randint(
+        0, samples
+    )  # integer for picking random instance to plot if requested
 
     for i in tqdm(range(samples)):
         # gamma
         gamma_dist = np.zeros(sim_samples)
         for j in range(sim_samples):
             gs_sim = -1
-            while gs_sim <= 0: # ensure we sample a positive stomatal conductance
-                gs_sim = r.normal(gs[i],dgs[i]) # assume normal distribution
+            while gs_sim <= 0:  # ensure we sample a positive stomatal conductance
+                gs_sim = r.normal(gs[i], dgs[i])  # assume normal distribution
             gias_sim = -1
-            while gias_sim <= 0: # ensure we sample a positive IAS conductance
-                gias_sim = r.normal(gias[i],dgias[i]) # assume normal distribution
+            while gias_sim <= 0:  # ensure we sample a positive IAS conductance
+                gias_sim = r.normal(gias[i], dgias[i])  # assume normal distribution
             # calculate gamma
-            gamma_dist[j] = 2*gs_sim/gias_sim
+            gamma_dist[j] = 2 * gs_sim / gias_sim
         gammas[i] = np.median(gamma_dist)
         # calculate the 16th and 84th percentiles and assign as assymmetric errors
-        dgammas[i,0] = np.abs(np.percentile(gamma_dist,16) - gammas[i])
-        dgammas[i,1] = np.abs(np.percentile(gamma_dist,84) - gammas[i])
-        
-        # tau 
+        dgammas[i, 0] = np.abs(np.percentile(gamma_dist, 16) - gammas[i])
+        dgammas[i, 1] = np.abs(np.percentile(gamma_dist, 84) - gammas[i])
+
+        # tau
         tau_dist = np.zeros(sim_samples)
         for j in range(sim_samples):
             gm_sim = -1
-            while gm_sim <= 0: # ensure we sample a positive gm*
-                gm_sim = r.normal(gm_[i],dgm_[i]) # assume normal distribution
+            while gm_sim <= 0:  # ensure we sample a positive gm*
+                gm_sim = r.normal(gm_[i], dgm_[i])  # assume normal distribution
             gias_sim = -1
-            while gias_sim <= 0: # ensure we sample a positive IAS conductance
-                gias_sim = r.normal(gias[i],dgias[i]) # assume normal distribution
-            gc0 = gm_[i] # initial guess for gc which will be true in the low tau limit
-            gc_sim = newton(gc0, gias_sim, gm_sim) # iteratively determine gc
-            tau_dist[j] = np.sqrt(2*gc_sim/gias_sim)
+            while gias_sim <= 0:  # ensure we sample a positive IAS conductance
+                gias_sim = r.normal(gias[i], dgias[i])  # assume normal distribution
+            gc0 = gm_[i]  # initial guess for gc which will be true in the low tau limit
+            gc_sim = newton(gc0, gias_sim, gm_sim)  # iteratively determine gc
+            tau_dist[j] = np.sqrt(2 * gc_sim / gias_sim)
         taus[i] = np.median(tau_dist)
         # calculate the 16th and 84th percentiles and assign as assymmetric errors
-        dtaus[i,0] = np.abs(np.percentile(tau_dist,16) - taus[i])
-        dtaus[i,1] = np.abs(np.percentile(tau_dist,84) - taus[i])
+        dtaus[i, 0] = np.abs(np.percentile(tau_dist, 16) - taus[i])
+        dtaus[i, 1] = np.abs(np.percentile(tau_dist, 84) - taus[i])
 
         # plot sample distributions if requested
         if i == random_int and plot_sample:
             fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
             # gamma in ax1
-            ax1.hist(gamma_dist, bins=20, color='darkblue');
-            ax1.plot([gammas[i], gammas[i]], [0, 100], 'r--')
-            ax1.plot([gammas[i] - dgammas[i,0], gammas[i] - dgammas[i,0]], [0, 100], 'g--')
-            ax1.plot([gammas[i] + dgammas[i,1], gammas[i] + dgammas[i,1]], [0, 100], 'g--')
-            ax1.set_title('Example distribution of individual gamma sim.')
+            ax1.hist(gamma_dist, bins=20, color="darkblue")
+            ax1.plot([gammas[i], gammas[i]], [0, 100], "r--")
+            ax1.plot(
+                [gammas[i] - dgammas[i, 0], gammas[i] - dgammas[i, 0]], [0, 100], "g--"
+            )
+            ax1.plot(
+                [gammas[i] + dgammas[i, 1], gammas[i] + dgammas[i, 1]], [0, 100], "g--"
+            )
+            ax1.set_title("Example distribution of individual gamma sim.")
             # tau in ax2
-            ax2.hist(tau_dist, bins=20, color='darkblue');
-            ax2.plot([taus[i], taus[i]], [0, 100], 'r--')
-            ax2.plot([taus[i] - dtaus[i,0], taus[i] - dtaus[i,0]], [0, 100], 'g--')
-            ax2.plot([taus[i] + dtaus[i,1], taus[i] + dtaus[i,1]], [0, 100], 'g--')
-            ax2.set_title('Example distribution of individual tau sim.')
+            ax2.hist(tau_dist, bins=20, color="darkblue")
+            ax2.plot([taus[i], taus[i]], [0, 100], "r--")
+            ax2.plot([taus[i] - dtaus[i, 0], taus[i] - dtaus[i, 0]], [0, 100], "g--")
+            ax2.plot([taus[i] + dtaus[i, 1], taus[i] + dtaus[i, 1]], [0, 100], "g--")
+            ax2.set_title("Example distribution of individual tau sim.")
             plt.show()
     # add to dataframe
-    dataframe['gamma'] = gammas
-    dataframe['dgamma_low'] = dgammas[:,0]
-    dataframe['dgamma_high'] = dgammas[:,1]
-    dataframe['tau'] = taus
-    dataframe['dtau_low'] = dtaus[:,0]
-    dataframe['dtau_high'] = dtaus[:,1]
+    dataframe["gamma"] = gammas
+    dataframe["dgamma_low"] = dgammas[:, 0]
+    dataframe["dgamma_high"] = dgammas[:, 1]
+    dataframe["tau"] = taus
+    dataframe["dtau_low"] = dtaus[:, 0]
+    dataframe["dtau_high"] = dtaus[:, 1]
     #
     return dataframe, (taus, dtaus), (gammas, dgammas)
