@@ -68,11 +68,80 @@ FILE STRUCTURE
         - Since the solution of the presented model exists analytically, there is no numerical approximation at play, only floating point precision
     - matplotlib_config.py
         - module containing often used settings for matplotlib (fonts, colors, colormaps)
-- supplementary
-    - codebase
-    - notebooks
-    - figures
-    - shell scripts
+- supplementary (material for exploring simplifying assumptions)
+    - codebase 
+        - lateral
+            - This module explores the simplifying assumption of neglecting 3D lateral diffusion originating from discrete stomatal distribution.
+            - comparison.py
+                - compute the difference in predicted assimilation rate from including lateral diffusion (3D vs 1D)
+            - create_mesh.py
+                - create a .msh file for simulating reaction-diffusion of gaseous CO2 in a mesophyll plug served by one stomate
+            - mpiscan.py
+                - reproduce the sensitivity map over $(\tau, \gamma)$ for a 3D mesophyll model
+            - solver.py
+                - solver class for a 3D description of gaseous reaction-diffusion in a continuous mesophyll model.
+            - stomata_analysis.ipynb
+                - statistical analysis and probagation from measured physiology like stomatal density to geometric features like mesophyll plug aspect ratio.
+        - nonlinear
+            - mpiscan.py
+                - reproduce the sensitivity map over $(\tau, \gamma)$ for a 1D mesophyll model with non-linear Rubisco kinetics
+            - solver.py
+                - sovler class for a 1D description of gaseous reaction-diffusion in a continuous mesophyll model with non-linear Rubisco kinetics.
+        - steady
+            - mpiscan.py
+                - reproduce the sensitivity map over $(\tau, \gamma)$ for a 1D mesophyll model with general $D, K$ distributions
+            - solver.py
+                - solver class for a linear 1D model with general diffusivity $D$ and reactivity $K$ distributions
+        - temporal
+            - mpiscan.py
+                - calculate the variation in assimilation rate prediction for non-steady scenarios when neglecting and accounting for spatial heterogeneity (spatial mean field vs spatial heterogeneity)
+            - solver.py
+                - solver class for non-steady integration of the 1D linear continuous mesophyll model.
+        - utils
+            - constants.py
+                - centralization module for parameter choices
+            - homogeneous.py
+                - module for solving the 1D homogeneous and linear leaf model
+            - mpiscan2d.py
+                - helper module for basic parallelization of 2D parameter scans using MPI
+            - paths.py
+                - helper module for managing paths
+            - plotfunctions.py
+                - helper module for often used plotting utilities
+            - profiles.py
+                - helper module for typical diffusivity $D$, reactivity $K$ and oscillatory profiles in time and space.
+    - figures (plots summarizing supplementary exploration results)
+    - notebooks (Must be run with /supplementary/ as the working directory)
+        - compare3DHetVsHom.ipynb
+            - comparison plot between two 3D model solutions with and without spatial heterogeneity in $D, K$
+        - sensitivity.ipynb
+            - generating plots over sensitivity $\eta(\tau,\gamma)$ for nonlinear kinetics and exponential $D,K$ distributions
+        - threedim.ipynb
+            - display a .msh file in the GMSH GUI
+            - generate comparison plot between 1D and 3D homogeneous model solutions
+            - generate sensitivity plot as in main results but for a typical 3D geometry
+        - transients.ipynb
+            - generate temporal sensitivity scan over amplitude and frequency of an oscillatory driving of $C_a, g_s$ or $K$
+        - visualize3DSolutions.ipynb
+            - plot a 3D solution over a given mesh for inspection
+    - shell scripts (scripts for saturating the supplementary simulation database)
+        - crossdim_comparison_scanning.sh
+            - MPI scan over 1D vs 3D model predictions of assimilation rates
+        - exponential_scanning.sh
+            - MPI scan over sensitivity $\eta(\tau,\gamma)$ for exponential $D,K$ distributions
+        - nonlinear_scanning.sh
+            - MPI scan over sensitivity $\eta(\tau,\gamma)$ for nonlinear Rubisco kinetics
+        - temporal_scanning.sh
+            - MPI scan over sensitivities for a range of amplitudes and frequencies of sinusoidal driving
+        - threedim_scanning.sh
+            - MPI scan over sensitivity $\eta(\tau,\gamma)$ for a typical 3D geometry
+- environment.yml
+    - Anaconda virtual environment file for reproducibility. 
+    - If disregarding the supplementary exploration, one will only need standard scientific packages:
+        - numpy
+        - pandas
+        - matplotlib
+        - tqdm (optional nicety)
 
 CONTACT
 
