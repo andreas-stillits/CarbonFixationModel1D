@@ -68,7 +68,11 @@ FILE STRUCTURE
         - Since the solution of the presented model exists analytically, there is no numerical approximation at play, only floating point precision
     - matplotlib_config.py
         - module containing often used settings for matplotlib (fonts, colors, colormaps)
-
+- supplementary
+    - codebase
+    - notebooks
+    - figures
+    - shell scripts
 
 CONTACT
 
