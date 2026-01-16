@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from core import (
+from python_module.helpers import (
     estimate_Ci_values,
     estimate_gm_star_values,
     newton_solver,
