@@ -5,7 +5,7 @@ SCRIPT="codebase.nonlinear.mpiscan"
 
 CMD=(mpirun -n "$NP" python -m "$SCRIPT")
 
-for mu in 0.00 0.50 1.00 2.00 4.00 8.00; do
+for mu in 10; do
     echo "Running: ${CMD[*]} --mu $mu"
     "${CMD[@]}" --mu "$mu"
 done
