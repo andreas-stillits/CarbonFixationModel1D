@@ -106,12 +106,8 @@ class Steady3DSolver:
         x = ufl.SpatialCoordinate(mesh)
         #
         phi = x[0] ** 2 + x[1] ** 2 - self.stomatal_radius**2  # type: ignore[reportIndexIssue]
-        gamma = (
-            self.gamma
-            * (self.plug_radius / self.stomatal_radius) ** 2
-            * 0.5
-            * (1 - ufl.tanh(phi / self.stomatal_blur / self.plug_radius**2))
-        )
+        scale = 0.5 * (1 - ufl.tanh(phi / self.stomatal_blur / self.plug_radius**2))
+        gamma = self.gamma * (self.plug_radius / self.stomatal_radius) ** 2 * scale
         #
         delta = get_delta(x, self.rho, epsilon=0.1)
         kappa = get_kappa(x, self.rho, epsilon=0.1)
@@ -138,13 +134,19 @@ class Steady3DSolver:
             a4x.write_function(self.filename, chi_h, name="solution")
         #
         plug_area = np.pi * self.plug_radius**2
+        stomatal_area = np.pi * self.stomatal_radius**2
         an3d = (
             fem.assemble_scalar(fem.form(tau2 * kappa * (chi_h - chi_) * dx))
             / plug_area
         )
+        chi_i = (
+            fem.assemble_scalar(fem.form(chi_h * scale * ds(BOTTOM_TAG)))
+            / stomatal_area
+        )
+
         if not self.extract_profile:
             # calculate assimilation rate and return
-            return an3d, [], [], []
+            return an3d, chi_i, [], []
         else:
             # extract z profile and calculate assimilation rate
 
