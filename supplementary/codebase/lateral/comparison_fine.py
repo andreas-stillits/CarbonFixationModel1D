@@ -81,7 +81,7 @@ class System:
     def save_results(self, results: np.ndarray) -> None:
         filedir = self.base_path / "fine_grained"
         filedir.mkdir(parents=True, exist_ok=True)
-        filename = filedir / f"typical_3Dv{self.dim}_error.txt"
+        filename = filedir / f"{VERSION}_3Dv{self.dim}_error.txt"
         np.savetxt(filename, results, delimiter=";")
 
 
