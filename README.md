@@ -56,9 +56,9 @@ FILE STRUCTURE
             - Jupyter notebook exploring the differences in $g_m^*$ definitions in a serial resistance model (0D) versus a continuous parallel resistance model (1D)
 - figures (scripts and .svg files used to generate the presented plots. NB: later editing in Adobe Illustrator did follow)
     - scripts
-        - Jupyter notebooks for generating blueprints for figures 2A, 2B, 2D, 2E, 2F, 3A, 3B, 3C, 4 (S7), and 5 (S8)
+        - Jupyter notebooks for generating blueprints for figures 2A, 2B, 2D, 2E, 2F, 3A, 3B, 3C, and supplementary S1-S7
     - vectorgraphics
-        - .svg files of the blueprints used for the presented figures. Later editing in Adobe Illustrator has followed
+        - .svg and .png files of the blueprints used for the presented figures. Later refinements has followed in Adobe Illustrator in published versions
 - modules (python files containing often used functionality)
     - estimator.py
         - module containing function for estimation and error propagation of quantities: $C_i, g_m^*, \tau, \gamma$. 
@@ -66,14 +66,14 @@ FILE STRUCTURE
     - leaf_model.py
         - module containing the class 'Leaf' that encodes the leaf model and its solution.
         - Since the solution of the presented model exists analytically, there is no numerical approximation at play, only floating point precision
-    - matplotlib_config.py
-        - module containing often used settings for matplotlib (fonts, colors, colormaps)
 - supplementary (material for exploring simplifying assumptions)
     - codebase 
         - lateral
             - This module explores the simplifying assumption of neglecting 3D lateral diffusion originating from discrete stomatal distribution.
+            - comparison_fine.py
+                - compute the difference in predicted assimilation rate from including lateral diffusion (3D vs 1D/0D) as a fine grained search
             - comparison.py
-                - compute the difference in predicted assimilation rate from including lateral diffusion (3D vs 1D)
+                - compute the difference in predicted assimilation rate from including lateral diffusion (3D vs 1D) on a case basis
             - create_mesh.py
                 - create a .msh file for simulating reaction-diffusion of gaseous CO2 in a mesophyll plug served by one stomate
             - mpiscan.py
@@ -111,19 +111,8 @@ FILE STRUCTURE
             - profiles.py
                 - helper module for typical diffusivity $D$, reactivity $K$ and oscillatory profiles in time and space.
     - figures (plots summarizing supplementary exploration results)
-    - notebooks (Must be run with /supplementary/ as the working directory)
-        - compare3DHetVsHom.ipynb
-            - comparison plot between two 3D model solutions with and without spatial heterogeneity in $D, K$
-        - sensitivity.ipynb
-            - generating plots over sensitivity $\eta(\tau,\gamma)$ for nonlinear kinetics and exponential $D,K$ distributions
-        - threedim.ipynb
-            - display a .msh file in the GMSH GUI
-            - generate comparison plot between 1D and 3D homogeneous model solutions
-            - generate sensitivity plot as in main results but for a typical 3D geometry
-        - transients.ipynb
-            - generate temporal sensitivity scan over amplitude and frequency of an oscillatory driving of $C_a, g_s$ or $K$
-        - visualize3DSolutions.ipynb
-            - plot a 3D solution over a given mesh for inspection
+    - notebooks (Must be run with supplementary/ as the working directory)
+        - generation of summarizing supplementary plots and interactive tools
     - shell scripts (scripts for saturating the supplementary simulation database)
         - crossdim_comparison_scanning.sh
             - MPI scan over 1D vs 3D model predictions of assimilation rates
