@@ -67,6 +67,7 @@ class System:
         assert an3d > 0.0, "3D assimilation rate should be positive"
         del solver
 
+        chi_i = homogeneous_solution(0, params)
         if self.dim == "1D":
             # 1D comparison
             an1d = params[1] * (1 - homogeneous_solution(0, params))
@@ -74,7 +75,8 @@ class System:
             return relative_difference
         else:
             # 0D comparison
-            an0d = params[0] ** 2 * (chi_i - params[2])
+            # an0d = params[0] ** 2 * (chi_i - params[2])
+            an0d = (1 - params[2]) / (1 / params[1] + 1 / params[0] ** 2)
             relative_difference = abs(an0d - an3d) / abs(an3d)
             return relative_difference
 
