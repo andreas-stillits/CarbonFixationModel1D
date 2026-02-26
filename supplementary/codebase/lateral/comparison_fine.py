@@ -14,7 +14,7 @@ from argparse import ArgumentParser
 
 from codebase.utils.homogeneous import homogeneous_solution
 
-VERSION = "typical"
+VERSION = "low"
 
 
 class System:
@@ -63,11 +63,10 @@ class System:
             extract_profile=False,
             save_solution=False,
         )
-        an3d, chi_i, _, _ = solver.solve()
+        an3d, _, _, _ = solver.solve()
         assert an3d > 0.0, "3D assimilation rate should be positive"
         del solver
 
-        chi_i = homogeneous_solution(0, params)
         if self.dim == "1D":
             # 1D comparison
             an1d = params[1] * (1 - homogeneous_solution(0, params))
