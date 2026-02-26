@@ -166,6 +166,9 @@ class ThreeDimExploration:
 
     stomatal_epsilon: float = 0.002
 
+    # Reproduce figure 3C parameters
+    n_rho: int = 2
+
     tau_min: float = 0.01
     tau_max: float = 100.0
     n_tau: int = 50
@@ -175,6 +178,15 @@ class ThreeDimExploration:
     n_gamma: int = 50
 
     chi_: float = 0.1
+
+    def get_rho_kappa_range(self, rhomax: float) -> np.ndarray:
+        return np.linspace(rhomax, 1.0, self.n_rho)
+
+    def get_rho_delta_range(self, rhomax: float) -> np.ndarray:
+        return np.linspace(rhomax, 1.0, self.n_rho)
+
+    def get_rho_lambda_range(self, rhomax: float) -> np.ndarray:
+        return np.linspace(rhomax, 1.0 - rhomax, self.n_rho)
 
     def get_tau_range(self) -> np.ndarray:
         return _get_log_range(self.tau_min, self.tau_max, self.n_tau)
