@@ -57,7 +57,7 @@ class System:
             stomatal_radius,
             mesh_file,
             stomatal_blur=c.stomatal_epsilon,
-            rho=(self.contrast, 1.0, 0.5),
+            rho=(self.contrast, self.contrast, 0.5),
             extract_profile=False,
             save_solution=False,
         )
@@ -70,7 +70,7 @@ class System:
     def save_results(self, results: np.ndarray) -> None:
         filedir = self.base_path / "heterogeneity_scan"
         filedir.mkdir(parents=True, exist_ok=True)
-        filename = filedir / f"3D_{self.version}_contrast_{self.contrast:.2f}_onlyD.txt"
+        filename = filedir / f"3D_{self.version}_contrast_{self.contrast:.2f}.txt"
         np.savetxt(filename, results, delimiter=";")
 
 
