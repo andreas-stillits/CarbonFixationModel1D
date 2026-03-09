@@ -1,19 +1,21 @@
 # This module provides basic functionality for estimating (tau, gamma) from a readers own data.
 
 ## Contents:
-- helpers.py: helper functions for estimating: 
-    Substomatal concentration $C_i$, 
-    Mesophyll conductance at the compensation point $g_m^*$,
-    And the subcellular component of mesophyll conductance $g_c$
 
-- interface.py: functions that accept either numpy arrays or a pandas data frame and returns $(\tau, \gamma)$ estimates.
+- functionality.py: functions that accept either numpy arrays or a pandas data frame and returns $(\tau, \gamma)$ estimates
 
-- example_script.ipynb: a notebook showcasing how one might use these functions in a python script or notebook
+- plotting.py: functions for plotting your data in published figures
+
+- notebook.ipynb: a drop-in jupyter notebook that enables researchers to quickly relate their data to $(\tau, \gamma)$ and published figures
+
+- example_script.ipynb: a jupyter notebook showcasing how one might use these functions in a python script or notebook
 
 - example_data.csv: data file for the purposes of demonstration
 
 
 ## Usage:
+
+OBS: For an easy drop-in application that requires no coding, see notebook.ipynb and update it to take your data file as input (.csv format)
 
 Estimation of $(\tau, \gamma)$ requires three quantities to be known - all in units of mol/m2/s:
 - Stomatal conductance $g_s$
@@ -34,4 +36,4 @@ column_map = {"gs": "gs_CO2", "gias": "ias_conductance"}
 
 And so forth. The function will take a data frame and return an identical data frame with the two columns "tau", "gamma" added.
 
-See 'example_script.ipynb'
+See 'example_script.ipynb' or 'notebook.ipynb'
